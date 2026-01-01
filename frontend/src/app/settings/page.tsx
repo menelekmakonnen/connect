@@ -64,16 +64,16 @@ function SettingsContent() {
         window.location.href = '/login';
     };
 
-    const TabButton = ({ id, icon: Icon, label, variant = 'ghost' }: { id: SettingsTab | 'logout', icon: any, label: string, variant?: 'ghost' | 'secondary' }) => {
+    const TabButton = ({ id, icon: Icon, label }: { id: SettingsTab | 'logout', icon: any, label: string }) => {
         if (id === 'logout') {
             return (
                 <Button
                     variant="ghost"
-                    className="w-full justify-end text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    className="w-full !justify-end text-red-500 hover:text-red-600 hover:bg-red-500/10 gap-3"
                     onClick={handleLogout}
                 >
                     {label}
-                    <Icon size={18} className="ml-2" />
+                    <Icon size={18} />
                 </Button>
             );
         }
@@ -82,11 +82,11 @@ function SettingsContent() {
         return (
             <Button
                 variant={isActive ? 'secondary' : 'ghost'}
-                className={`w-full justify-end ${isActive ? 'bg-[var(--bg-elevated)] font-medium' : 'text-[var(--text-secondary)]'}`}
+                className={`w-full !justify-end gap-3 transition-all ${isActive ? 'bg-[var(--bg-elevated)] font-medium border-r-2 border-[var(--accent-primary)] rounded-r-none' : 'text-[var(--text-secondary)] border-transparent'}`}
                 onClick={() => setActiveTab(id as SettingsTab)}
             >
                 {label}
-                <Icon size={18} className={`ml-2 ${isActive ? 'text-[var(--accent-primary)]' : ''}`} />
+                <Icon size={18} className={isActive ? 'text-[var(--accent-primary)]' : ''} />
             </Button>
         );
     };
@@ -98,21 +98,24 @@ function SettingsContent() {
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 {/* Sidebar */}
                 <div className="md:col-span-4 lg:col-span-3 space-y-1">
-                    <Button
-                        variant="ghost"
-                        className="w-full justify-end text-[var(--text-secondary)] mb-4"
-                        onClick={() => window.location.href = '/dashboard'}
-                    >
-                        Back to Dashboard
-                        <FolderKanban size={18} className="ml-2" />
-                    </Button>
-                    <TabButton id="profile" icon={User} label="Profile" />
-                    <TabButton id="notifications" icon={Bell} label="Notifications" />
-                    <TabButton id="privacy" icon={Shield} label="Privacy & Security" />
-                    <TabButton id="appearance" icon={Moon} label="Appearance" />
+                    <div className="flex flex-col gap-1">
+                        <Button
+                            variant="ghost"
+                            className="w-full !justify-end text-[var(--text-secondary)] mb-6 gap-3 hover:text-[var(--accent-primary)]"
+                            onClick={() => window.location.href = '/dashboard'}
+                        >
+                            Back to Dashboard
+                            <FolderKanban size={18} />
+                        </Button>
 
-                    <div className="pt-4 mt-4 border-t border-[var(--border-subtle)]">
-                        <TabButton id="logout" icon={LogOut} label="Sign Out" />
+                        <TabButton id="profile" icon={User} label="Profile" />
+                        <TabButton id="notifications" icon={Bell} label="Notifications" />
+                        <TabButton id="privacy" icon={Shield} label="Privacy & Security" />
+                        <TabButton id="appearance" icon={Moon} label="Appearance" />
+
+                        <div className="pt-4 mt-4 border-t border-[var(--border-subtle)]">
+                            <TabButton id="logout" icon={LogOut} label="Sign Out" />
+                        </div>
                     </div>
                 </div>
 
@@ -149,8 +152,10 @@ function SettingsContent() {
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-medium text-[var(--text-secondary)]">Account Type</label>
-                                        <div className="p-3 rounded-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] capitalize font-mono text-sm">
-                                            {user?.account_type === 'pm' ? 'Production Management' : (user?.account_type || 'User')}
+                                        <div className="p-3 rounded-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] font-medium text-sm">
+                                            {(!user?.account_type || user.account_type.toLowerCase() === 'pm')
+                                                ? 'Production Management'
+                                                : user.account_type.charAt(0).toUpperCase() + user.account_type.slice(1)}
                                         </div>
                                     </div>
                                 </div>
