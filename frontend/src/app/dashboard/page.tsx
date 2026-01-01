@@ -85,7 +85,7 @@ function DashboardContent() {
     const pendingRequests = requests.filter(r => ['sent', 'viewed'].includes(r.status));
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pt-6 pb-12">
             {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold mb-2">

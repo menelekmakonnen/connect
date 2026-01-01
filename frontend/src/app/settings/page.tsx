@@ -97,12 +97,8 @@ function SettingsContent() {
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                 {/* Sidebar */}
-                <div className="md:col-span-4 lg:col-span-3 space-y-2">
+                <div className="md:col-span-4 lg:col-span-3 space-y-1">
                     <TabButton id="profile" icon={User} label="Profile" />
-
-                    {/* Deep Integration: Talent Management Link */}
-                    <TabButton id="profile" icon={User} label="Profile" />
-
                     <TabButton id="notifications" icon={Bell} label="Notifications" />
                     <TabButton id="privacy" icon={Shield} label="Privacy & Security" />
                     <TabButton id="appearance" icon={Moon} label="Appearance" />
@@ -144,9 +140,9 @@ function SettingsContent() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-[var(--text-secondary)]">Account Type</label>
+                                        <label className="text-sm font-medium text-[var(--text-secondary)]">Status</label>
                                         <div className="p-3 rounded-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] capitalize font-mono text-sm">
-                                            {user?.account_type || 'User'}
+                                            {user?.status || 'Active'}
                                         </div>
                                     </div>
                                 </div>
@@ -233,7 +229,30 @@ function SettingsContent() {
                                 <Moon size={20} className="text-[var(--accent-primary)]" />
                                 Appearance
                             </h2>
-                            <p className="text-[var(--text-muted)]">Theme settings coming soon. Currently following system preference.</p>
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <button
+                                        onClick={() => document.documentElement.classList.remove('dark')}
+                                        className="p-4 rounded-xl border border-[var(--border-subtle)] bg-white text-black text-center hover:border-[var(--accent-primary)] transition-all"
+                                    >
+                                        <div className="text-sm font-bold mb-1">Light</div>
+                                        <div className="text-xs opacity-60">Clean & Bright</div>
+                                    </button>
+                                    <button
+                                        onClick={() => document.documentElement.classList.add('dark')}
+                                        className="p-4 rounded-xl border border-[var(--accent-primary)] bg-black text-white text-center hover:shadow-[0_0_15px_rgba(var(--accent-primary-rgb),0.3)] transition-all"
+                                    >
+                                        <div className="text-sm font-bold mb-1">Dark</div>
+                                        <div className="text-xs opacity-60">Modern & Sleek</div>
+                                    </button>
+                                    <button
+                                        className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-secondary)] text-[var(--text-primary)] text-center opacity-50 cursor-not-allowed"
+                                    >
+                                        <div className="text-sm font-bold mb-1">System</div>
+                                        <div className="text-xs opacity-60">Auto-detect</div>
+                                    </button>
+                                </div>
+                            </div>
                         </Card>
                     )}
                 </div>

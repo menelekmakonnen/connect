@@ -20,8 +20,9 @@ import {
 } from 'lucide-react';
 
 const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: FolderKanban, public: false },
     { name: 'Talents', href: '/talents', icon: Users, public: true },
-    { name: 'Projects', href: '/projects', icon: FolderKanban, public: true },
+    { name: 'Projects', href: '/projects', icon: Sparkles, public: true },
     { name: 'Requests', href: '/requests', icon: Inbox, public: false },
     { name: 'Shortlists', href: '/shortlists', icon: Bookmark, public: false },
     { name: 'Manage Talent', href: '/talent/manage', icon: Users, public: false },
@@ -67,12 +68,14 @@ export function Sidebar() {
         >
             {/* Header / Logo */}
             <div className={cn("flex items-center border-b border-[var(--border-subtle)] transition-all", isCollapsed ? "p-3 justify-center" : "p-5 justify-between")}>
-                <Link href="/" className="flex items-center gap-2 overflow-hidden">
-                    <div className="w-8 h-8 min-w-[32px] rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
-                        <Sparkles size={18} className="text-black" />
-                    </div>
+                <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden">
+                    <img
+                        src="/icuni_favicon_concept_1767266752441.png"
+                        alt="Logo"
+                        className="w-8 h-8 min-w-[32px] rounded-lg object-cover"
+                    />
                     {!isCollapsed && (
-                        <span className="font-semibold text-lg tracking-tight whitespace-nowrap opacity-100 transition-opacity duration-300">
+                        <span className="font-bold text-lg tracking-tight whitespace-nowrap opacity-100 transition-opacity duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent">
                             ICUNI Connect
                         </span>
                     )}

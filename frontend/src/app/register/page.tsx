@@ -7,8 +7,8 @@ export default function RegisterPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Default to Talent Registration
-        router.push('/register/talent/profile');
+        // Default to Talent Registration (Unified Engine)
+        router.push('/register/talent');
     }, [router]);
 
     return (

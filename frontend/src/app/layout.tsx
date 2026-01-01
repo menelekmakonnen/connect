@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "ICUNI Connect | Production Ops Platform",
   description: "Turn casting and crewing from chaos into an organized, trackable pipeline. The fastest way to assemble a legit lineup for Ghana's creative industry.",
   keywords: ["Ghana", "film production", "talent directory", "casting", "crew booking", "music video", "production"],
+  icons: {
+    icon: '/favicon.png',
+    apple: '/favicon.png',
+  }
 };
 
 export default function RootLayout({
