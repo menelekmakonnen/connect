@@ -16,8 +16,13 @@ import {
     LayoutGrid,
     Users,
     Clock,
-    Check
+    Check,
+    Loader2
 } from 'lucide-react';
+import { api } from '@/lib/api';
+import { Project, ProjectSummary } from '@/lib/types';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
 
 const PROJECT_TYPES = [
     'Feature Film', 'Short Film', 'Commercial', 'Music Video', 'Documentary', 'Corporate', 'Event', 'Photoshoot', 'Other'
@@ -25,13 +30,58 @@ const PROJECT_TYPES = [
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN'];
 
-export function ProjectManager() {
-    const { draft, updateDraft, updateScheduleItem, removeFromProject, clearDraft } = useAppStore();
+export function ProjectManager({ initialData }: { initialData?: Project | ProjectSummary }) {
+    const { draft, updateDraft, updateScheduleItem, removeFromProject, clearDraft, setDraft } = useAppStore();
     const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'talents'>('details');
+    const [isSaving, setIsSaving] = useState(false);
+    const router = useRouter();
+    const { isAuthenticated, user } = useAuth();
+
+    // Initialize from prop if provided
+    useEffect(() => {
+        if (initialData) {
+            setDraft({
+                name: initialData.title,
+                type: initialData.type,
+                // Map other fields as best as possible
+                budget: (initialData as any).budget || 50000, // Fallback if budget isn't in ProjectSummary
+                selectedTalents: [], // We'd need to fetch these if editing an existing project full w/ slots
+                // ... map other fields
+            } as any);
+        }
+    }, [initialData, setDraft]);
 
     // Calculated fields
     const totalDuration = draft.schedule.reduce((acc, item) => item.enabled ? acc + item.durationWeeks : 0, 0);
     const endDate = draft.startDate ? new Date(new Date(draft.startDate).getTime() + totalDuration * 7 * 24 * 60 * 60 * 1000) : null;
+
+    const handleSave = async () => {
+        if (!isAuthenticated) return;
+        setIsSaving(true);
+        try {
+            const projectData = {
+                title: draft.name,
+                type: draft.type || 'other',
+                budget_tier: draft.budget > 50000 ? 'high' : 'mid', // Approximate mapping
+                start_date: draft.startDate || '',
+                // ... map other fields
+            };
+
+            if (initialData && initialData.project_id) {
+                await api.projects.update(initialData.project_id, projectData);
+            } else {
+                await api.projects.create(projectData);
+            }
+
+            // alert('Project saved!');
+            router.refresh();
+        } catch (e) {
+            console.error(e);
+            alert('Failed to save project');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const handleSendRequest = () => {
         // Implementation for sending requests (e.g. open a modal or redirect)
@@ -65,10 +115,18 @@ export function ProjectManager() {
                     <Button variant="secondary" onClick={clearDraft} title="Clear Draft">
                         <Trash2 size={16} />
                     </Button>
-                    <Button onClick={handleSendRequest} disabled={draft.selectedTalents.length === 0}>
-                        <Send size={16} className="mr-2" />
-                        Send Requests
-                    </Button>
+
+                    {isAuthenticated ? (
+                        <Button onClick={handleSave} disabled={isSaving || !draft.name}>
+                            {isSaving ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
+                            {initialData ? 'Save Changes' : 'Save Project'}
+                        </Button>
+                    ) : (
+                        <Button onClick={handleSendRequest} disabled={draft.selectedTalents.length === 0}>
+                            <Send size={16} className="mr-2" />
+                            Send Requests
+                        </Button>
+                    )}
                 </div>
             </div>
 

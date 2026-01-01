@@ -61,6 +61,7 @@ interface AppState {
     updateDraft: (updates: Partial<DraftProject>) => void;
     updateScheduleItem: (index: number, updates: Partial<ScheduleItem>) => void;
     clearDraft: () => void;
+    setDraft: (draft: DraftProject) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -107,6 +108,7 @@ export const useAppStore = create<AppState>()(
                 };
             }),
             clearDraft: () => set({ draft: DEFAULT_DRAFT }),
+            setDraft: (draft) => set({ draft }),
         }),
         {
             name: 'icuni-app-storage',

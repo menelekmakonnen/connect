@@ -79,8 +79,9 @@ export default function ProjectsPage() {
         );
     }
 
-    // Authenticated View: List Projects
-    const [view, setView] = useState<'manage' | 'explore'>('manage');
+    // Authenticated View
+    const [view, setView] = useState<'manage' | 'list'>('manage');
+    const [activeProject, setActiveProject] = useState<ProjectSummary | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
@@ -92,13 +93,19 @@ export default function ProjectsPage() {
         async function fetchProjects() {
             try {
                 setLoading(true);
-                // In 'explore' view, we pass admin_view=false (implicit)
-                // In 'manage' view, we show all our own projects
-                const response = (view === 'manage')
-                    ? await api.projects.listByUser()
-                    : await api.projects.list({ status: statusFilter, type: typeFilter });
-
-                setProjects(response || []);
+                // Fetch user projects
+                if (view === 'manage') {
+                    const response = await api.projects.listByUser();
+                    setProjects(response || []);
+                    // Find the most recent active project
+                    const active = response.filter((p: ProjectSummary) => !['completed', 'cancelled'].includes(p.status))
+                        .sort((a: ProjectSummary, b: ProjectSummary) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime())[0];
+                    setActiveProject(active || null);
+                } else {
+                    // Explorer view (list all public)
+                    const response = await api.projects.list({ status: statusFilter, type: typeFilter });
+                    setProjects(response || []);
+                }
                 setError(null);
             } catch (err: any) {
                 console.error('Failed to fetch projects:', err);
@@ -134,41 +141,47 @@ export default function ProjectsPage() {
     const activeProjects = filteredProjects.filter(p => !['completed', 'cancelled'].includes(p.status));
     const pastProjects = filteredProjects.filter(p => ['completed', 'cancelled'].includes(p.status));
 
+    if (view === 'manage') {
+        return (
+            <div className="page-container animate-fade-in">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-3xl font-bold">Project Engine</h1>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" onClick={() => setView('list')}>
+                            <FolderKanban size={18} className="mr-2" />
+                            View All Projects
+                        </Button>
+                    </div>
+                </div>
+
+                {loading ? (
+                    <div className="text-center py-12">
+                        <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin text-[var(--accent-primary)]" />
+                        <p className="text-[var(--text-secondary)]">Loading Engine...</p>
+                    </div>
+                ) : (
+                    <ProjectManager initialData={activeProject || undefined} />
+                )}
+            </div>
+        );
+    }
+
     return (
         <div className="page-container animate-fade-in">
             {/* Header */}
             <div className="section-header">
                 <div>
-                    <h1 className="text-3xl font-bold mb-1">Projects</h1>
-                    <div className="flex gap-4 mt-4 bg-[var(--bg-secondary)] p-1 rounded-xl w-fit border border-[var(--border-subtle)]">
-                        <button
-                            onClick={() => setView('manage')}
-                            className={cn(
-                                "px-4 py-2 rounded-lg text-sm font-bold transition-all",
-                                view === 'manage' ? "bg-[var(--accent-primary)] text-black" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                            )}
-                        >
-                            My Projects
-                        </button>
-                        <button
-                            onClick={() => setView('explore')}
-                            className={cn(
-                                "px-4 py-2 rounded-lg text-sm font-bold transition-all",
-                                view === 'explore' ? "bg-[var(--accent-primary)] text-black" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                            )}
-                        >
-                            Project Explorer
-                        </button>
-                    </div>
-                </div>
-                {view === 'manage' && (
+                    <Button variant="ghost" onClick={() => setView('manage')} className="mb-2 pl-0 hover:bg-transparent hover:text-[var(--accent-primary)]">
+                        ← Back to Engine
+                    </Button>
+                    <h1 className="text-3xl font-bold mb-1">Project Explorer</h1>
                     <Link href="/projects/new">
                         <Button className="h-12 px-6">
                             <Plus size={18} />
                             Create Project
                         </Button>
                     </Link>
-                )}
+                </div>
             </div>
 
             {/* Loading State */}

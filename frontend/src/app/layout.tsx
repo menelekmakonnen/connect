@@ -15,8 +15,7 @@ export const metadata: Metadata = {
   description: "Turn casting and crewing from chaos into an organized, trackable pipeline. The fastest way to assemble a legit lineup for Ghana's creative industry.",
   keywords: ["Ghana", "film production", "talent directory", "casting", "crew booking", "music video", "production"],
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>',
   }
 };
 
