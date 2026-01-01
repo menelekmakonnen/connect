@@ -1,0 +1,51 @@
+role_id,role_name,role_category,search_terms,active
+ROLE_ACTOR_001,Actor,Cast,"actor,performer,screen actor,film actor",True
+ROLE_MODEL_001,Model,Cast,"model,fashion model,commercial model,editorial model",True
+ROLE_VOICE_001,Voice Actor,Cast,"voice actor,va,voiceover,voice over,narrator",True
+ROLE_EXTRA_001,Extra / Background,Cast,"extra,background,bg,supporting extra",True
+ROLE_DIR_001,Director,Production,"director,film director,mv director",True
+ROLE_PROD_001,Producer,Production,"producer,exec producer,ep,creative producer",True
+ROLE_LINEPROD_001,Line Producer,Production,"line producer,lp,unit producer",True
+ROLE_PMAN_001,Production Manager,Production,"production manager,pm,prod manager",True
+ROLE_PCOORD_001,Production Coordinator,Production,"production coordinator,pc,coordinator",True
+ROLE_1AD_001,1st AD,Production,"1st ad,first ad,assistant director 1",True
+ROLE_2AD_001,2nd AD,Production,"2nd ad,second ad,assistant director 2",True
+ROLE_LOC_001,Location Manager,Production,"location manager,locations,loc manager",True
+ROLE_SCRIPTSUP_001,Script Supervisor,Production,"script supervisor,script sup,continuity",True
+ROLE_DOP_001,Director of Photography (DP),Camera,"dop,dp,cinematographer,director of photography",True
+ROLE_CAMOP_001,Camera Operator,Camera,"camera operator,cam op,operator",True
+ROLE_1AC_001,1st AC (Focus Puller),Camera,"1st ac,first ac,focus puller,focus pull",True
+ROLE_2AC_001,2nd AC,Camera,"2nd ac,second ac,clapper loader,clapper",True
+ROLE_GIMBAL_001,Gimbal Operator,Camera,"gimbal operator,ronin operator,stabilizer op",True
+ROLE_DRONE_001,Drone Operator,Camera,"drone operator,uav pilot,drone pilot",True
+ROLE_DIT_001,DIT (Digital Imaging Technician),Camera,"dit,digital imaging,data wrangler",True
+ROLE_PHOTO_001,Photographer,Stills,"photographer,photog,photo",True
+ROLE_BTS_PHOTO_001,BTS Photographer,Stills,"bts photographer,behind the scenes photographer,set photographer",True
+ROLE_BTS_VIDEO_001,BTS Videographer,Stills,"bts videographer,behind the scenes video,set videographer",True
+ROLE_SOCIAL_001,Social Media Content Creator,Stills,"content creator,social media,social",True
+ROLE_SOUNDREC_001,Sound Recordist,Sound,"sound recordist,location sound,soundie,sound record",True
+ROLE_BOOM_001,Boom Operator,Sound,"boom op,boom operator,boom",True
+ROLE_SND_DES_001,Sound Designer (Post),Sound,"sound designer,post sound,sfx sound",True
+ROLE_MIX_001,Sound Mixer,Sound,"sound mixer,re-recording mixer,audio mixer",True
+ROLE_GAFFER_001,Gaffer,Lighting/Grip,"gaffer,chief lighting,lighting boss",True
+ROLE_BESTBOY_001,Best Boy,Lighting/Grip,"best boy,bestboy",True
+ROLE_KEYGRIP_001,Key Grip,Lighting/Grip,"key grip,grip lead",True
+ROLE_GRIP_001,Grip,Lighting/Grip,"grip,rigging grip",True
+ROLE_ELEC_001,Lighting Technician,Lighting/Grip,"spark,electric,lighting tech,electrician",True
+ROLE_PD_001,Production Designer,Art/Wardrobe,"production designer,pd,art lead",True
+ROLE_ARTDIR_001,Art Director,Art/Wardrobe,"art director,art dir",True
+ROLE_SET_001,Set Dresser,Art/Wardrobe,"set dresser,set dressing",True
+ROLE_PROPS_001,Props Master,Art/Wardrobe,"props master,prop master,props",True
+ROLE_WARD_001,Wardrobe Stylist,Art/Wardrobe,"wardrobe stylist,stylist,wardrobe",True
+ROLE_COST_001,Costume Designer,Art/Wardrobe,"costume designer,costume",True
+ROLE_MUA_001,Makeup Artist,HairMakeup,"mua,makeup artist,make up,makeup",True
+ROLE_HAIR_001,Hair Stylist,HairMakeup,"hair stylist,hair,braider,wig stylist",True
+ROLE_SFXMUA_001,SFX Makeup,HairMakeup,"sfx makeup,special effects makeup,prosthetics",True
+ROLE_EDITOR_001,Editor,Post,"editor,video editor,offline editor",True
+ROLE_COLOR_001,Colorist,Post,"colorist,colourist,grading,color grading",True
+ROLE_VFX_001,VFX Artist,Post,"vfx,visual effects,compositing,comp",True
+ROLE_MOGRAPH_001,Motion Designer,Post,"motion designer,mograph,after effects",True
+ROLE_COMPOSER_001,Composer,Post,"composer,music composer,score",True
+ROLE_DRIVER_001,Driver,Services,"driver,chauffeur",True
+ROLE_CATER_001,Caterer,Services,"caterer,catering,food",True
+ROLE_SECURITY_001,Security,Services,"security,bouncer,guard",True
