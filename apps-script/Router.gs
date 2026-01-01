@@ -101,6 +101,10 @@ function route(e, method) {
 
     // Projects endpoints
     if (resource === 'projects') {
+      if (id === 'my' && actualMethod === 'GET') {
+        const user = requireAuth(e);
+        return createResponse(getUserProjects(user.user_id, params));
+      }
       if (!id && actualMethod === 'GET') {
         // MVP: Allow public access to projects list
         // const user = requireAuth(e);

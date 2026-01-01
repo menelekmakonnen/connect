@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button, Card } from '@/components/ui'; import { api } from '@/lib/api';
-import { Project, RoleSlot } from '@/lib/types';
+import { Project, RoleSlot, ProjectSummary } from '@/lib/types';
 import {
     X,
     Send,
@@ -22,8 +22,9 @@ interface SendRequestModalProps {
 export function SendRequestModal({ isOpen, onClose, talentId, talentName }: SendRequestModalProps) {
     const router = useRouter();
     const [step, setStep] = useState<'select-project' | 'compose' | 'success'>('select-project');
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [projects, setProjects] = useState<ProjectSummary[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingDetails, setLoadingDetails] = useState(false);
 
     // Selection state
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -115,9 +116,17 @@ export function SendRequestModal({ isOpen, onClose, talentId, talentName }: Send
                                 projects.map(proj => (
                                     <div
                                         key={proj.project_id}
-                                        onClick={() => {
-                                            setSelectedProject(proj);
-                                            setStep('compose');
+                                        onClick={async () => {
+                                            try {
+                                                setLoadingDetails(true);
+                                                const fullProject = await api.projects.getById(proj.project_id);
+                                                setSelectedProject(fullProject);
+                                                setStep('compose');
+                                            } catch (err) {
+                                                console.error('Failed to load project details', err);
+                                            } finally {
+                                                setLoadingDetails(false);
+                                            }
                                         }}
                                         className="p-4 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--bg-hover)] cursor-pointer transition-colors border border-transparent hover:border-[var(--accent-primary)]"
                                     >

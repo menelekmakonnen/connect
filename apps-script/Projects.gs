@@ -13,9 +13,9 @@ function getAllProjects(params) {
         return dbSelect(TABLES.PROJECTS, {});
     });
     
-    // Filter by visibility (default to public only)
+    // Filter by visibility (default to public only for non-admin/guest view)
     if (admin_view !== 'true') {
-      projects = projects.filter(p => p.visibility === 'public' || p.visibility === undefined);
+      projects = projects.filter(p => p.public_private === 'public');
     }
     
     // Filter by status
@@ -78,6 +78,7 @@ function getAllProjects(params) {
         start_date: p.start_date,
         location_city: p.location_city,
         budget_tier: p.budget_tier,
+        public_private: p.public_private || 'public',
         slots_count: slots.length,
         lineup_count: lineup.filter(l => l.lineup_status === 'accepted' || l.lineup_status === 'locked').length,
         pending_requests: pendingRequests.length
@@ -143,6 +144,7 @@ function enrichProjectSummary(project) {
     start_date: project.start_date,
     location_city: project.location_city,
     budget_tier: project.budget_tier,
+    public_private: project.public_private || 'private',
     slots_count: slots.length,
     lineup_count: lineup.filter(l => l.lineup_status === 'accepted' || l.lineup_status === 'locked').length,
     pending_requests: pendingRequests.length
@@ -220,6 +222,7 @@ function createProject(data, userId) {
       brief: data.brief || '',
       budget_tier: data.budget_tier || 'mid',
       client_name: data.client_name || '',
+      public_private: 'private', // Default to private as requested
       created_at: getTimestamp(),
       updated_at: getTimestamp()
     };

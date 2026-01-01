@@ -141,6 +141,7 @@ export interface Project {
     references_links: string[];
     budget_tier: BudgetTier;
     client_name?: string;
+    public_private: 'public' | 'private';
     created_at: string;
     updated_at: string;
     // Enriched fields
@@ -207,6 +208,7 @@ export interface ProjectSummary {
     start_date?: string;
     location_city?: string;
     budget_tier: BudgetTier;
+    public_private: 'public' | 'private';
     slots_count: number;
     lineup_count: number;
     pending_requests: number;
@@ -260,4 +262,5 @@ export interface ProjectFilters {
     status?: ProjectStatus;
     type?: ProjectType;
     budget_tier?: BudgetTier;
+    public_private?: 'public' | 'private';
 }

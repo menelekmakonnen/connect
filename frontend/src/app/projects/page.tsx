@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { Button, Card, SearchInput, Select, StatusBadge } from '@/components/ui';
 import { formatDate, getProjectTypeLabel } from '@/lib/utils';
 import type { ProjectSummary, ProjectStatus } from '@/lib/types';
-import { Plus, FolderKanban, Calendar, MapPin, Loader2 } from 'lucide-react';
+import { Plus, FolderKanban, Calendar, MapPin, Loader2, Eye, EyeOff, Globe, Lock } from 'lucide-react';
+import { ProjectManager } from '@/components/projects/ProjectManager';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { ProjectManager } from '@/components/projects/ProjectManager';
+import { cn } from '@/lib/utils';
 
 const statusOptions = [
     { value: '', label: 'All Status' },
@@ -43,6 +44,21 @@ function getStatusColor(status: ProjectStatus): string {
     return colors[status];
 }
 
+function VisibilityBadge({ visibility }: { visibility: 'public' | 'private' }) {
+    const isPublic = visibility === 'public';
+    return (
+        <span className={cn(
+            "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+            isPublic
+                ? "bg-[var(--req-accepted)]/10 text-[var(--req-accepted)] border-[var(--req-accepted)]/20"
+                : "bg-[var(--text-muted)]/10 text-[var(--text-muted)] border-[var(--border-subtle)]"
+        )}>
+            {isPublic ? <Globe size={10} /> : <Lock size={10} />}
+            {visibility}
+        </span>
+    );
+}
+
 export default function ProjectsPage() {
     const { isAuthenticated } = useAuth();
 
@@ -64,6 +80,7 @@ export default function ProjectsPage() {
     }
 
     // Authenticated View: List Projects
+    const [view, setView] = useState<'manage' | 'explore'>('manage');
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [typeFilter, setTypeFilter] = useState('');
@@ -75,8 +92,13 @@ export default function ProjectsPage() {
         async function fetchProjects() {
             try {
                 setLoading(true);
-                const response = await api.projects.list({ status: statusFilter, type: typeFilter });
-                setProjects((response || []) as unknown as ProjectSummary[]);
+                // In 'explore' view, we pass admin_view=false (implicit)
+                // In 'manage' view, we show all our own projects
+                const response = (view === 'manage')
+                    ? await api.projects.listByUser()
+                    : await api.projects.list({ status: statusFilter, type: typeFilter });
+
+                setProjects(response || []);
                 setError(null);
             } catch (err: any) {
                 console.error('Failed to fetch projects:', err);
@@ -86,7 +108,20 @@ export default function ProjectsPage() {
             }
         }
         fetchProjects();
-    }, [statusFilter, typeFilter]);
+    }, [statusFilter, typeFilter, view]);
+
+    const handleToggleVisibility = async (e: React.MouseEvent, project: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+            const newVisibility = project.public_private === 'public' ? 'private' : 'public';
+            await api.projects.update(project.project_id, { public_private: newVisibility });
+            // Optimistic update
+            setProjects(projects.map(p => p.project_id === project.project_id ? { ...p, public_private: newVisibility } : p));
+        } catch (err) {
+            console.error('Failed to toggle visibility:', err);
+        }
+    };
 
     const filteredProjects = projects.filter((project) => {
         if (searchQuery) {
@@ -104,17 +139,36 @@ export default function ProjectsPage() {
             {/* Header */}
             <div className="section-header">
                 <div>
-                    <h1 className="text-2xl font-semibold mb-1">Projects</h1>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                        {activeProjects.length} active projects
-                    </p>
+                    <h1 className="text-3xl font-bold mb-1">Projects</h1>
+                    <div className="flex gap-4 mt-4 bg-[var(--bg-secondary)] p-1 rounded-xl w-fit border border-[var(--border-subtle)]">
+                        <button
+                            onClick={() => setView('manage')}
+                            className={cn(
+                                "px-4 py-2 rounded-lg text-sm font-bold transition-all",
+                                view === 'manage' ? "bg-[var(--accent-primary)] text-black" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                            )}
+                        >
+                            My Projects
+                        </button>
+                        <button
+                            onClick={() => setView('explore')}
+                            className={cn(
+                                "px-4 py-2 rounded-lg text-sm font-bold transition-all",
+                                view === 'explore' ? "bg-[var(--accent-primary)] text-black" : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                            )}
+                        >
+                            Project Explorer
+                        </button>
+                    </div>
                 </div>
-                <Link href="/projects/new">
-                    <Button>
-                        <Plus size={16} />
-                        New Project
-                    </Button>
-                </Link>
+                {view === 'manage' && (
+                    <Link href="/projects/new">
+                        <Button className="h-12 px-6">
+                            <Plus size={18} />
+                            Create Project
+                        </Button>
+                    </Link>
+                )}
             </div>
 
             {/* Loading State */}
@@ -164,17 +218,30 @@ export default function ProjectsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {activeProjects.map((project) => (
                             <Link key={project.project_id} href={`/projects/${project.project_id}`}>
-                                <Card variant="interactive" className="p-5 h-full">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <StatusBadge status={project.status} />
+                                <Card variant="interactive" className="p-6 h-full border-white/5 relative group">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex flex-col gap-2">
+                                            <StatusBadge status={project.status} />
+                                            {view === 'manage' && <VisibilityBadge visibility={project.public_private || 'private'} />}
+                                        </div>
+                                        {view === 'manage' && (
+                                            <button
+                                                onClick={(e) => handleToggleVisibility(e, project)}
+                                                className="p-2 rounded-full bg-white/5 hover:bg-[var(--accent-primary)]/20 text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-all"
+                                                title={project.public_private === 'public' ? 'Make Private' : 'Make Public'}
+                                            >
+                                                {project.public_private === 'public' ? <EyeOff size={16} /> : <Eye size={16} />}
+                                            </button>
+                                        )}
+                                        {!project.start_date && <div className="text-[var(--text-muted)] text-xs">No Date</div>}
                                         {project.start_date && (
-                                            <span className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
-                                                <Calendar size={12} />
+                                            <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] bg-white/5 px-2 py-1 rounded">
+                                                <Calendar size={10} />
                                                 {formatDate(project.start_date)}
                                             </span>
                                         )}
                                     </div>
-                                    <h3 className="font-medium text-base mb-1 line-clamp-2">{project.title}</h3>
+                                    <h3 className="text-lg font-bold mb-2 line-clamp-1 group-hover:text-[var(--accent-primary)] transition-colors">{project.title}</h3>
                                     <div className="flex items-center gap-3 text-sm text-[var(--text-muted)] mb-4">
                                         {project.location_city && (
                                             <span className="flex items-center gap-1">
@@ -202,7 +269,7 @@ export default function ProjectsPage() {
                                     {project.pending_requests > 0 && (
                                         <div className="flex items-center gap-2 text-sm">
                                             <span className="w-2 h-2 rounded-full bg-[var(--req-negotiating)] animate-pulse" />
-                                            <span className="text-[var(--text-secondary)]">
+                                            <span className="text-[var(--accent-primary)]">
                                                 {project.pending_requests} pending response{project.pending_requests > 1 ? 's' : ''}
                                             </span>
                                         </div>

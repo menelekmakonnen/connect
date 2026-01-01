@@ -1,4 +1,4 @@
-import { Talent, Project, Request, RequestInboxItem } from './types';
+import { Project, Talent, Request, TalentLink, TalentRate, Role, RoleSlot, ProjectSummary, RequestInboxItem } from './types';
 
 // ============================================================================
 // ICUNI Connect - Frontend API Client
@@ -185,7 +185,7 @@ export const api = {
 
     // Projects
     projects: {
-        list: (params?: { status?: string; type?: string }) => {
+        list: (params?: { status?: string; type?: string; admin_view?: string }) => {
             const searchParams = new URLSearchParams();
             if (params) {
                 Object.entries(params).forEach(([key, value]) => {
@@ -193,7 +193,17 @@ export const api = {
                 });
             }
             const query = searchParams.toString();
-            return apiCall<Project[]>(`/projects${query ? `?${query}` : ''}`, { method: 'GET' });
+            return apiCall<ProjectSummary[]>(`/projects${query ? `?${query}` : ''}`, { method: 'GET' });
+        },
+        listByUser: (params?: { status?: string; type?: string }) => {
+            const searchParams = new URLSearchParams();
+            if (params) {
+                Object.entries(params).forEach(([key, value]) => {
+                    if (value) searchParams.append(key, value);
+                });
+            }
+            const query = searchParams.toString();
+            return apiCall<ProjectSummary[]>(`/projects/my${query ? `?${query}` : ''}`, { method: 'GET' });
         },
         getById: (id: string) => apiCall<Project>(`/projects/${id}`, { method: 'GET' }),
         create: (data: any) => apiCall(`/projects`, { method: 'POST', body: JSON.stringify(data) }),

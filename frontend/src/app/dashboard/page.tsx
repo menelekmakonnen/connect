@@ -7,7 +7,7 @@ import { Card, Button } from '@/components/ui';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
-import { Project, Request, RequestInboxItem } from '@/lib/types';
+import { Project, Request, RequestInboxItem, ProjectSummary } from '@/lib/types';
 import {
     Briefcase,
     Users,
@@ -30,7 +30,7 @@ export default function DashboardPage() {
 function DashboardContent() {
     const router = useRouter();
     const { user } = useAuth();
-    const [projects, setProjects] = useState<Project[]>([]);
+    const [projects, setProjects] = useState<ProjectSummary[]>([]);
     const [requests, setRequests] = useState<(Request | RequestInboxItem)[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -209,11 +209,11 @@ function DashboardContent() {
                                 </p>
 
                                 <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
-                                    <span>{(project as Project & { slots_count?: number }).slots_count || project.role_slots?.length || 0} roles</span>
-                                    <span>{(project as Project & { lineup_count?: number }).lineup_count || 0} booked</span>
-                                    {((project as Project & { pending_requests?: number }).pending_requests || 0) > 0 && (
+                                    <span>{project.slots_count || 0} roles</span>
+                                    <span>{project.lineup_count || 0} booked</span>
+                                    {(project.pending_requests || 0) > 0 && (
                                         <span className="text-[var(--accent-primary)]">
-                                            {(project as Project & { pending_requests?: number }).pending_requests} pending
+                                            {project.pending_requests} pending
                                         </span>
                                     )}
                                 </div>

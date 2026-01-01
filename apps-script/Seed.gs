@@ -156,9 +156,9 @@ function seedTalentRates() {
 
 function seedProjects() {
   const projects = [
-    ['PRJ_001', 'USR_004', 'Summer Vibes Commercial', 'brand_shoot', 'staffing', '2024-02-15', '2024-02-16', 'Accra', 'Labadi Beach', 'High-energy beverage ad targeting Gen Z', '', 'premium', 'Refresh Drinks Ltd', new Date(), new Date()],
-    ['PRJ_002', 'USR_004', 'Indie Short Film "Echoes"', 'short_film', 'draft', '2024-03-01', '2024-03-05', 'Kumasi', 'Various locations', 'Drama about family reunion', '', 'low', '', new Date(), new Date()],
-    ['PRJ_003', 'USR_004', 'Azonto Music Video', 'music_video', 'locked', '2024-01-20', '2024-01-20', 'Tema', 'Community 25', 'High-energy dance video', '', 'mid', '', new Date(), new Date()],
+    ['PRJ_001', 'USR_004', 'Summer Vibes Commercial', 'brand_shoot', 'staffing', '2024-02-15', '2024-02-16', 'Accra', 'Labadi Beach', 'High-energy beverage ad targeting Gen Z', '', 'premium', 'Refresh Drinks Ltd', 'public', new Date(), new Date()],
+    ['PRJ_002', 'USR_004', 'Indie Short Film "Echoes"', 'short_film', 'draft', '2024-03-01', '2024-03-05', 'Kumasi', 'Various locations', 'Drama about family reunion', '', 'low', '', 'private', new Date(), new Date()],
+    ['PRJ_003', 'USR_004', 'Azonto Music Video', 'music_video', 'locked', '2024-01-20', '2024-01-20', 'Tema', 'Community 25', 'High-energy dance video', '', 'mid', '', 'public', new Date(), new Date()],
   ];
   
   const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(TABLES.PROJECTS);
