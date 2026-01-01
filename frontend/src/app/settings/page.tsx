@@ -69,11 +69,11 @@ function SettingsContent() {
             return (
                 <Button
                     variant="ghost"
-                    className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10"
+                    className="w-full justify-end text-red-500 hover:text-red-600 hover:bg-red-500/10"
                     onClick={handleLogout}
                 >
-                    <Icon size={18} className="mr-2" />
                     {label}
+                    <Icon size={18} className="ml-2" />
                 </Button>
             );
         }
@@ -82,11 +82,11 @@ function SettingsContent() {
         return (
             <Button
                 variant={isActive ? 'secondary' : 'ghost'}
-                className={`w-full justify-start ${isActive ? 'bg-[var(--bg-elevated)] font-medium' : 'text-[var(--text-secondary)]'}`}
+                className={`w-full justify-end ${isActive ? 'bg-[var(--bg-elevated)] font-medium' : 'text-[var(--text-secondary)]'}`}
                 onClick={() => setActiveTab(id as SettingsTab)}
             >
-                <Icon size={18} className={`mr-2 ${isActive ? 'text-[var(--accent-primary)]' : ''}`} />
                 {label}
+                <Icon size={18} className={`ml-2 ${isActive ? 'text-[var(--accent-primary)]' : ''}`} />
             </Button>
         );
     };
@@ -100,11 +100,11 @@ function SettingsContent() {
                 <div className="md:col-span-4 lg:col-span-3 space-y-1">
                     <Button
                         variant="ghost"
-                        className="w-full justify-start text-[var(--text-secondary)] mb-4"
+                        className="w-full justify-end text-[var(--text-secondary)] mb-4"
                         onClick={() => window.location.href = '/dashboard'}
                     >
-                        <FolderKanban size={18} className="mr-2" />
                         Back to Dashboard
+                        <FolderKanban size={18} className="ml-2" />
                     </Button>
                     <TabButton id="profile" icon={User} label="Profile" />
                     <TabButton id="notifications" icon={Bell} label="Notifications" />
@@ -148,9 +148,9 @@ function SettingsContent() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium text-[var(--text-secondary)]">Status</label>
+                                        <label className="text-sm font-medium text-[var(--text-secondary)]">Account Type</label>
                                         <div className="p-3 rounded-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] capitalize font-mono text-sm">
-                                            {user?.status || 'Active'}
+                                            {user?.account_type === 'pm' ? 'Production Management' : (user?.account_type || 'User')}
                                         </div>
                                     </div>
                                 </div>

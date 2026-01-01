@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 import { TalentHero } from '@/components/talents/TalentHero';
 import { useAuth } from '@/lib/auth';
+import { cn } from '@/lib/utils';
 
 // Main CTA Component
 function MainCTA({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
@@ -69,7 +70,7 @@ export default function LandingPage() {
         <TalentHero />
       </div>
       {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
+      <section className="relative pt-12 pb-20 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[var(--accent-primary)]/10 blur-[100px] rounded-full pointer-events-none" />
         <div className="absolute top-40 right-0 w-[400px] h-[400px] bg-[var(--role-camera)]/10 blur-[80px] rounded-full pointer-events-none" />
@@ -109,7 +110,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Grid */}
-      <section className="py-20 bg-[var(--bg-elevated)]/30">
+      <section className="py-16 bg-[var(--bg-elevated)]/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="p-8 hover:border-[var(--accent-primary)]/50 transition-colors group">
@@ -194,35 +195,82 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="relative">
-              {/* Abstract UI representation */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-[var(--accent-primary)]/20 to-[var(--role-lighting)]/20 blur-2xl rounded-3xl opacity-50" />
-              <Card className="relative p-6 border-[var(--accent-primary)]/30 bg-black/80 backdrop-blur-xl">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <span className="font-mono text-xs text-[var(--accent-primary)]">PROJECT: BRAND_Q1</span>
-                    <span className="px-2 py-0.5 rounded text-[10px] bg-green-500/20 text-green-400">ACTIVE</span>
+            <div className="relative group">
+              {/* Animated Background Glow */}
+              <div className="absolute -inset-4 bg-gradient-to-tr from-[var(--accent-primary)]/30 via-[var(--role-lighting)]/20 to-[var(--role-camera)]/30 blur-3xl rounded-[3rem] opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
+
+              <Card className="relative p-0 overflow-hidden border-[var(--accent-primary)]/20 bg-black/40 backdrop-blur-3xl shadow-2xl rounded-2xl">
+                {/* Mock Browser Header */}
+                <div className="bg-white/5 px-4 py-3 border-b border-white/10 flex items-center justify-between">
+                  <div className="flex gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
                   </div>
+                  <div className="bg-white/5 px-3 py-1 rounded-md text-[10px] text-white/30 font-mono">
+                    connect.icuni.org/projects/crew-mv-01
+                  </div>
+                  <div className="w-10" />
+                </div>
+
+                <div className="p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-bold text-white tracking-wide uppercase">Casting: Music Video</h3>
+                      <p className="text-[10px] text-[var(--accent-primary)] font-mono mt-0.5">EST. BUDGET: $12,500</p>
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-bold text-green-400">
+                      75% STAFFED
+                    </div>
+                  </div>
+
                   <div className="space-y-3">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded bg-white/5">
+                    {/* Role Slots Mock */}
+                    {[
+                      { role: 'Director of Photography', name: 'Kojo Anim', status: 'Booked', color: 'blue' },
+                      { role: 'Gaffer', name: 'Ama Serwah', status: 'Booked', color: 'yellow' },
+                      { role: 'Art Director', name: 'Pending Selection', status: 'Staffing', color: 'gray' }
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600" />
+                          <div className={`w-9 h-9 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/60`}>
+                            {item.name.charAt(0)}
+                          </div>
                           <div>
-                            <div className="h-2 w-24 bg-white/20 rounded mb-1" />
-                            <div className="h-1.5 w-16 bg-white/10 rounded" />
+                            <div className="text-[11px] font-bold text-white/90">{item.role}</div>
+                            <div className="text-[10px] text-white/40">{item.name}</div>
                           </div>
                         </div>
-                        <div className="h-6 w-16 bg-[var(--accent-primary)]/20 rounded" />
+                        <div className={cn(
+                          "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
+                          item.status === 'Booked' ? "bg-blue-500/20 text-blue-400" : "bg-white/10 text-white/40"
+                        )}>
+                          {item.status}
+                        </div>
                       </div>
                     ))}
                   </div>
-                  <div className="pt-4 border-t border-white/10 flex justify-between items-center text-xs text-white/40">
-                    <span>Total Budget: $45,000</span>
-                    <span>Status: Staffing</span>
+
+                  {/* Summary Bar */}
+                  <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div className="flex -space-x-2">
+                      {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="w-6 h-6 rounded-full border-2 border-black bg-gray-800" />
+                      ))}
+                      <div className="w-6 h-6 rounded-full border-2 border-black bg-[var(--accent-primary)] text-black text-[8px] font-bold flex items-center justify-center">+12</div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full w-[70%] bg-[var(--accent-primary)] shadow-[0_0_10px_rgba(var(--accent-primary-rgb),0.5)]" />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
+
+              {/* Floating Accents */}
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[var(--accent-primary)]/20 blur-3xl pointer-events-none" />
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-500/10 blur-[80px] pointer-events-none" />
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import {
     Users,
-    FolderKanban,
+    LayoutDashboard,
     Inbox,
     Bookmark,
     Settings,
@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: FolderKanban, public: false },
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, public: false },
     { name: 'Talents', href: '/talents', icon: Users, public: true },
     { name: 'Projects', href: '/projects', icon: Sparkles, public: true },
     { name: 'Requests', href: '/requests', icon: Inbox, public: false },
