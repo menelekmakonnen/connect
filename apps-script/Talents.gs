@@ -25,10 +25,12 @@ function searchTalents(params) {
     // Filter out deleted
     talents = talents.filter(t => !t.deleted);
 
-    // Filter by visibility (default to public only)
-    // admin_view param can be used to bypass this
+    // Filter by visibility (public profiles only for non-admin view)
     if (params.admin_view !== 'true') {
-      talents = talents.filter(t => t.visibility === 'public' || t.visibility === undefined); // Allow undefined for legacy/new
+      talents = talents.filter(function(t) {
+        var visibility = (t.visibility || t.public_private || 'public').toString().trim().toLowerCase();
+        return visibility !== 'private';
+      });
     }
     
     // Text search (name, headline, bio)
@@ -53,14 +55,20 @@ function searchTalents(params) {
       }
     }
     
-    // City filter
+    // City filter (case-insensitive)
     if (city) {
-      talents = talents.filter(t => t.city === city);
+      var lowerCity = city.toLowerCase();
+      talents = talents.filter(function(t) {
+        return t.city && t.city.toLowerCase() === lowerCity;
+      });
     }
     
-    // Availability filter
+    // Availability filter (case-insensitive)
     if (availability) {
-      talents = talents.filter(t => t.availability_status === availability);
+      var lowerAvail = availability.toLowerCase();
+      talents = talents.filter(function(t) {
+        return t.availability_status && t.availability_status.toLowerCase() === lowerAvail;
+      });
     }
     
     // Verified only
@@ -309,6 +317,7 @@ function createTalent(data) {
       tags_style: Array.isArray(data.tags_style) ? data.tags_style.join(',') : (data.tags_style || ''),
       created_at: getTimestamp(),
       updated_at: getTimestamp(),
+      visibility: data.visibility || (data.public_private || 'public'),
       deleted: false
     };
     

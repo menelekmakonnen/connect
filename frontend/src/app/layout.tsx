@@ -4,6 +4,7 @@ import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Providers } from "./Providers";
 import { TalentQuickView } from "@/components/talent/TalentQuickView";
+import { DynamicFavicon } from "@/components/common/DynamicFavicon";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,9 +16,9 @@ export const metadata: Metadata = {
   description: "Turn casting and crewing from chaos into an organized, trackable pipeline. The fastest way to assemble a legit lineup for Ghana's creative industry.",
   keywords: ["Ghana", "film production", "talent directory", "casting", "crew booking", "music video", "production"],
   icons: {
-    icon: '/icon.png',
-    shortcut: '/icon.png',
-    apple: '/icon.png',
+    icon: '/favicon-active.png?v=1',
+    shortcut: '/favicon-active.png?v=1',
+    apple: '/favicon-active.png?v=1',
   }
 };
 
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
+        <DynamicFavicon />
         <div className="app-layout">
           <Providers>
             <Sidebar />

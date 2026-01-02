@@ -70,7 +70,7 @@ export function Sidebar() {
             <div className={cn("flex items-center border-b border-[var(--border-subtle)] transition-all", isCollapsed ? "p-3 justify-center" : "p-5 justify-between")}>
                 <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden">
                     <img
-                        src="/icon.png"
+                        src="/favicon-active.png"
                         alt="Logo"
                         className="w-8 h-8 min-w-[32px] rounded-lg object-cover"
                     />

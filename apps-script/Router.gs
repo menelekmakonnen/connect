@@ -34,27 +34,34 @@ function route(e, method) {
     }
 
     // Parse path and parameters
-    // CRITICAL FIX: Apps Script Web Apps don't populate e.pathInfo from URL segments
-    // So we accept the path as a query parameter: ?path=/api/talents
-    const params = e.parameter || {};
-    const path = params.path || e.pathInfo || '/';
-    const body = e.postData ? JSON.parse(e.postData.contents) : {};
+    var params = e.parameter || {};
+    var path = params.path || e.pathInfo || '/';
+    var body = {};
+    
+    try {
+      body = e.postData ? JSON.parse(e.postData.contents) : {};
+    } catch (parseError) {
+      Logger.log('Body parse error: ' + parseError.toString());
+    }
     
     // Extract method from body if present (for PATCH/DELETE via POST)
-    const actualMethod = body._method || method;
+    var actualMethod = (body._method || method).toUpperCase();
     
-    Logger.log(`${actualMethod} ${path}`);
+    Logger.log('Processing: ' + actualMethod + ' ' + path);
 
     // Route to appropriate handler
-    const segments = path.split('/').filter(s => s);
+    var segments = path.split('/').filter(function(s) { return s && s.trim(); });
     
     if (!segments.length || segments[0] !== 'api') {
-      return createErrorResponse('Invalid API path', 404);
+      Logger.log('Invalid API path: ' + path);
+      return createErrorResponse('Invalid API path: ' + path, 404);
     }
 
-    const resource = segments[1];
-    const id = segments[2];
-    const subResource = segments[3];
+    var resource = segments[1] ? segments[1].toLowerCase() : '';
+    var id = segments[2] ? segments[2].trim() : '';
+    var subResource = segments[3] ? segments[3].toLowerCase() : '';
+
+    Logger.log('Resource: ' + resource + ', ID: ' + id + ', Sub: ' + subResource);
 
     // Auth endpoints
     if (resource === 'auth') {
@@ -65,7 +72,7 @@ function route(e, method) {
 
     // Me endpoint
     if (resource === 'me' && actualMethod === 'GET') {
-      const user = requireAuth(e);
+      var user = requireAuth(e);
       return createResponse({ ok: true, data: user });
     }
 
@@ -94,30 +101,29 @@ function route(e, method) {
         return createResponse(upsertTalentRates(id, body));
       }
       if (id && subResource === 'claim' && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        return createResponse(claimTalentProfile(id, user.user_id));
+        var user_claim = requireAuth(e);
+        return createResponse(claimTalentProfile(id, user_claim.user_id));
       }
     }
 
     // Projects endpoints
     if (resource === 'projects') {
+      Logger.log('Handling Projects: id=' + id + ', method=' + actualMethod);
+      
       if (id === 'my' && actualMethod === 'GET') {
-        const user = requireAuth(e);
-        return createResponse(getUserProjects(user.user_id, params));
+        var user_projects = requireAuth(e);
+        Logger.log('Calling getUserProjects for user: ' + user_projects.user_id);
+        return createResponse(getUserProjects(user_projects.user_id, params));
       }
       if (!id && actualMethod === 'GET') {
-        // MVP: Allow public access to projects list
-        // const user = requireAuth(e);
-        // return createResponse(getUserProjects(user.user_id, params));
         return createResponse(getAllProjects(params));
       }
       if (!id && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        return createResponse(createProject(body, user.user_id));
+        var user_create = requireAuth(e);
+        return createResponse(createProject(body, user_create.user_id));
       }
       if (id && actualMethod === 'GET') {
-        // MVP: Allow public access to project details
-        // requireAuth(e);
+        Logger.log('Calling getProjectById for ID: ' + id);
         return createResponse(getProjectById(id));
       }
       if (id && actualMethod === 'PATCH') {
@@ -139,16 +145,16 @@ function route(e, method) {
         }
       }
       if (id && subResource === 'requests' && segments[4] === 'send' && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        return createResponse(sendRequests(id, body, user));
+        var user_req = requireAuth(e);
+        return createResponse(sendRequests(id, body, user_req));
       }
     }
 
     // Requests endpoints
     if (resource === 'requests') {
       if (segments[2] === 'inbox' && actualMethod === 'GET') {
-        const user = requireAuth(e);
-        return createResponse(getTalentInbox(user.user_id));
+        var user_inbox = requireAuth(e);
+        return createResponse(getTalentInbox(user_inbox.user_id));
       }
       if (id && actualMethod === 'GET') {
         requireAuth(e);
@@ -166,45 +172,47 @@ function route(e, method) {
     // Assets endpoints
     if (resource === 'assets') {
       if (subResource === 'upload' && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        const { dataUrl, type, category } = body;
-        return createResponse(uploadUserFile(user.user_id, dataUrl, type, category));
+        var user_asset = requireAuth(e);
+        var dataUrl = body.dataUrl;
+        var type = body.type;
+        var category = body.category;
+        return createResponse(uploadUserFile(user_asset.user_id, dataUrl, type, category));
       }
     }
 
     // Shortlists endpoints
     if (resource === 'shortlists') {
       if (!id && actualMethod === 'GET') {
-        const user = requireAuth(e);
-        return createResponse(getUserShortlists(user.user_id));
+        var user_s_list = requireAuth(e);
+        return createResponse(getUserShortlists(user_s_list.user_id));
       }
       if (!id && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        const { name } = body;
-        return createResponse(createShortlist(user.user_id, name));
+        var user_s_create = requireAuth(e);
+        var s_name = body.name;
+        return createResponse(createShortlist(user_s_create.user_id, s_name));
       }
       if (id && actualMethod === 'DELETE') {
-        const user = requireAuth(e);
-        return createResponse(deleteShortlist(id, user.user_id));
+        var user_s_del = requireAuth(e);
+        return createResponse(deleteShortlist(id, user_s_del.user_id));
       }
       if (id && subResource === 'add' && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        const { talent_id } = body;
-        return createResponse(addTalentToShortlist(id, talent_id, user.user_id));
+        var user_s_add = requireAuth(e);
+        var t_id_add = body.talent_id;
+        return createResponse(addTalentToShortlist(id, t_id_add, user_s_add.user_id));
       }
       if (id && subResource === 'remove' && actualMethod === 'POST') {
-        const user = requireAuth(e);
-        const { talent_id } = body;
-        return createResponse(removeTalentFromShortlist(id, talent_id, user.user_id));
+        var user_s_rem = requireAuth(e);
+        var t_id_rem = body.talent_id;
+        return createResponse(removeTalentFromShortlist(id, t_id_rem, user_s_rem.user_id));
       }
     }
 
-    // If no route matched
-    return createErrorResponse('Endpoint not found', 404);
+    Logger.log('No route matched for: ' + resource + '/' + id + '/' + subResource);
+    return createErrorResponse('Endpoint not found: ' + resource + '/' + id, 404);
 
   } catch (error) {
-    Logger.log('Error: ' + error.toString());
-    Logger.log(error.stack);
+    Logger.log('Router Error: ' + error.toString());
+    if (error.stack) Logger.log(error.stack);
     return createErrorResponse(error.toString(), 500);
   }
 }
@@ -213,6 +221,10 @@ function route(e, method) {
  * Create a successful JSON response
  */
 function createResponse(data) {
+  // Add version tag for diagnostics
+  if (data && typeof data === 'object') {
+    data.v = 'ICUNI-1.0.1';
+  }
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
@@ -221,11 +233,11 @@ function createResponse(data) {
 /**
  * Create an error response
  */
-function createErrorResponse(message, statusCode = 400) {
-  const response = {
+function createErrorResponse(message, statusCode) {
+  var response = {
     ok: false,
     error: message,
-    statusCode: statusCode
+    statusCode: statusCode || 400
   };
   
   return ContentService

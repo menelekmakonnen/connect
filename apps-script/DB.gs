@@ -32,13 +32,18 @@ function dbSelectAll(tableName) {
     return [];
   }
   
-  const headers = data[0];
+  const rawHeaders = data[0];
+  const headers = rawHeaders.map(function(h) { 
+    return h.toString().trim().toLowerCase(); 
+  });
   const rows = data.slice(1);
   
-  return rows.map(row => {
+  return rows.map(function(row) {
     const obj = {};
-    headers.forEach((header, index) => {
-      obj[header] = row[index];
+    headers.forEach(function(header, index) {
+      if (header) {
+        obj[header] = row[index];
+      }
     });
     return obj;
   });
@@ -54,9 +59,15 @@ function dbSelect(tableName, filter) {
     return allRows;
   }
   
-  return allRows.filter(row => {
-    for (const key in filter) {
-      if (row[key] !== filter[key]) {
+  // Normalize filter keys to lowercase
+  const normalizedFilter = {};
+  for (const key in filter) {
+    normalizedFilter[key.toLowerCase()] = filter[key];
+  }
+  
+  return allRows.filter(function(row) {
+    for (const key in normalizedFilter) {
+      if (row[key] !== normalizedFilter[key]) {
         return false;
       }
     }
@@ -78,10 +89,12 @@ function dbFindOne(tableName, filter) {
 function dbInsert(tableName, data) {
   const sheet = getSheet(tableName);
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const normalizedHeaders = headers.map(function(h) { return h.toString().trim().toLowerCase(); });
   
   // Build row from data matching headers
-  const row = headers.map(header => {
-    return data[header] !== undefined ? data[header] : '';
+  const row = headers.map(function(header, index) {
+    const key = normalizedHeaders[index];
+    return data[key] !== undefined ? data[key] : (data[header] !== undefined ? data[header] : '');
   });
   
   sheet.appendRow(row);
@@ -102,14 +115,16 @@ function dbUpdate(tableName, filter, updates) {
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const rowObj = {};
-    headers.forEach((header, index) => {
-      rowObj[header] = row[index];
+    headers.forEach(function(header, index) {
+      const key = header.toString().trim().toLowerCase();
+      rowObj[key] = row[index];
     });
     
-    // Check if row matches filter
+    // Check if row matches filter (using case-insensitive keys)
     let matches = true;
-    for (const key in filter) {
-      if (rowObj[key] !== filter[key]) {
+    for (var k in filter) {
+      var normK = k.toLowerCase();
+      if (rowObj[normK] !== filter[k]) {
         matches = false;
         break;
       }

@@ -88,11 +88,20 @@ export default function NewProjectPage() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleSubmit = () => {
-        // In real app, this would call the API
-        console.log('Creating project:', formData);
-        // Redirect to the new project page
-        router.push('/projects/PRJ_000099');
+    const [loading_create, setLoadingCreate] = useState(false);
+
+    const handleSubmit = async () => {
+        try {
+            setLoadingCreate(true);
+            const res = await api.projects.create(formData);
+            // Redirect to the new project page
+            router.push(`/projects/${res.project_id}`);
+        } catch (err) {
+            console.error('Failed to create project:', err);
+            alert('Failed to create project. Please try again.');
+        } finally {
+            setLoadingCreate(false);
+        }
     };
 
     const canProceed = () => {
@@ -356,8 +365,8 @@ export default function NewProjectPage() {
                         <ArrowRight size={16} />
                     </Button>
                 ) : (
-                    <Button onClick={handleSubmit} disabled={!canProceed()}>
-                        Create Project
+                    <Button onClick={handleSubmit} disabled={!canProceed() || loading_create}>
+                        {loading_create ? <Loader2 className="animate-spin" /> : 'Create Project'}
                         <ArrowRight size={16} />
                     </Button>
                 )}

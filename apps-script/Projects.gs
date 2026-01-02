@@ -15,21 +15,31 @@ function getAllProjects(params) {
     
     // Filter by visibility (default to public only for non-admin/guest view)
     if (admin_view !== 'true') {
-      projects = projects.filter(p => p.public_private === 'public');
+      projects = projects.filter(function(p) {
+        // Check both visibility and legacy public_private field
+        var visibility = p.visibility || p.public_private;
+        return visibility === 'public';
+      });
     }
     
     // Filter by status
     if (status) {
-      projects = projects.filter(p => p.status === status);
+      projects = projects.filter(function(p) {
+        return p.status === status;
+      });
     }
     
     // Filter by type
     if (type) {
-      projects = projects.filter(p => p.type === type);
+      projects = projects.filter(function(p) {
+        return p.type === type;
+      });
     }
     
     // Sort by created_at desc
-    projects.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    projects.sort(function(a, b) {
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
     
     // OPTIMIZATION: Batch load all related data once
     const allSlots = CacheUtils.getOrSet('ALL_ROLE_SLOTS_RAW', function() {
@@ -116,13 +126,15 @@ function getUserProjects(userId, params) {
     projects.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     
     // Enrich with stats
-    const enriched = projects.map(p => enrichProjectSummary(p));
+    var enriched = projects.map(function(p) {
+      return enrichProjectSummary(p);
+    });
     
     return { ok: true, data: enriched };
     
   } catch (error) {
     Logger.log('Get projects error: ' + error.toString());
-    return { ok: false, error: error.toString() };
+    return { ok: false, error: 'Get projects error: ' + error.toString() };
   }
 }
 
@@ -162,18 +174,18 @@ function getProjectById(projectId) {
     const project = dbFindOne(TABLES.PROJECTS, { project_id: projectId });
     
     if (!project) {
-      return { ok: false, error: 'Project not found' };
+      return { ok: false, error: 'Project not found: ' + projectId };
     }
     
     // Get role slots
     const slots = dbSelect(TABLES.ROLE_SLOTS, { project_id: projectId });
     
     // Get lineup for each slot
-    const slotsWithLineup = slots.map(slot => {
-      const lineupEntries = dbSelect(TABLES.LINEUP, { slot_id: slot.slot_id });
+    var slotsWithLineup = slots.map(function(slot) {
+      var lineupEntries = dbSelect(TABLES.LINEUP, { slot_id: slot.slot_id });
       
       // Enrich lineup with talent info
-      const enrichedLineup = lineupEntries.map(lineup => {
+      var enrichedLineup = lineupEntries.map(function(lineup) {
         const talent = dbFindOne(TABLES.TALENTS, { talent_id: lineup.talent_id });
         return {
           ...lineup,
@@ -222,7 +234,8 @@ function createProject(data, userId) {
       brief: data.brief || '',
       budget_tier: data.budget_tier || 'mid',
       client_name: data.client_name || '',
-      public_private: 'private', // Default to private as requested
+      public_private: 'private', // Legacy field support
+      visibility: 'private',     // Standard field matching frontend
       created_at: getTimestamp(),
       updated_at: getTimestamp()
     };

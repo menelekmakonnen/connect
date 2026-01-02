@@ -19,6 +19,7 @@ export interface DraftProject {
     ambition: number; // 0-10
     startDate: string | null; // ISO string
     schedule: ScheduleItem[];
+    visibility: 'public' | 'private';
     selectedTalents: (Talent | TalentCard)[];
 }
 
@@ -40,6 +41,7 @@ const DEFAULT_DRAFT: DraftProject = {
     ambition: 5,
     startDate: null,
     schedule: DEFAULT_SCHEDULE,
+    visibility: 'public',
     selectedTalents: [],
 };
 

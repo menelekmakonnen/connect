@@ -17,7 +17,9 @@ import {
     Users,
     Clock,
     Check,
-    Loader2
+    Loader2,
+    Globe,
+    Lock
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Project, ProjectSummary } from '@/lib/types';
@@ -45,6 +47,7 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                 type: initialData.type,
                 // Map other fields as best as possible
                 budget: (initialData as any).budget || 50000, // Fallback if budget isn't in ProjectSummary
+                visibility: (initialData as any).visibility || (initialData as any).public_private || 'public',
                 selectedTalents: [], // We'd need to fetch these if editing an existing project full w/ slots
                 // ... map other fields
             } as any);
@@ -64,6 +67,7 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                 type: draft.type || 'other',
                 budget_tier: draft.budget > 50000 ? 'high' : 'mid', // Approximate mapping
                 start_date: draft.startDate || '',
+                visibility: draft.visibility,
                 // ... map other fields
             };
 
@@ -152,6 +156,36 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                                     <option value="">Select Type...</option>
                                     {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Visibility</label>
+                                <div className="flex bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg p-1">
+                                    <button
+                                        onClick={() => updateDraft({ visibility: 'public' })}
+                                        className={cn(
+                                            "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-md text-sm transition-all",
+                                            draft.visibility === 'public'
+                                                ? "bg-[var(--accent-primary)] text-black"
+                                                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                                        )}
+                                    >
+                                        <Globe size={14} />
+                                        Public
+                                    </button>
+                                    <button
+                                        onClick={() => updateDraft({ visibility: 'private' })}
+                                        className={cn(
+                                            "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-md text-sm transition-all",
+                                            draft.visibility === 'private'
+                                                ? "bg-[var(--accent-primary)] text-black"
+                                                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                                        )}
+                                    >
+                                        <Lock size={14} />
+                                        Private
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="space-y-2">

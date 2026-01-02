@@ -12,7 +12,7 @@ function sendRequests(projectId, data, user) {
     const project = dbFindOne(TABLES.PROJECTS, { project_id: projectId });
     
     if (!project) {
-      return { ok: false, error: 'Project not found' };
+      return { ok: false, error: 'Project not found: ' + projectId };
     }
     
     // Check ownership
