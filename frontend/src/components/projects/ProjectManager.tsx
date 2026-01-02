@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppStore, ScheduleItem } from '@/lib/store';
 import { cn, formatCurrency } from '@/lib/utils';
 import { Button, Input, Card } from '@/components/ui';
