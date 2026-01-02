@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button, Card, SearchInput, Select, StatusBadge } from '@/components/ui';
 import { formatDate, getProjectTypeLabel } from '@/lib/utils';
 import type { ProjectSummary, ProjectStatus } from '@/lib/types';
-import { Plus, FolderKanban, Calendar, MapPin, Loader2, Eye, EyeOff, Globe, Lock } from 'lucide-react';
+import { Plus, FolderKanban, Calendar, MapPin, Loader2 } from 'lucide-react';
 import { ProjectManager } from '@/components/projects/ProjectManager';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -44,42 +44,11 @@ function getStatusColor(status: ProjectStatus): string {
     return colors[status];
 }
 
-function VisibilityBadge({ visibility }: { visibility: 'public' | 'private' }) {
-    const isPublic = visibility === 'public';
-    return (
-        <span className={cn(
-            "flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-            isPublic
-                ? "bg-[var(--req-accepted)]/10 text-[var(--req-accepted)] border-[var(--req-accepted)]/20"
-                : "bg-[var(--text-muted)]/10 text-[var(--text-muted)] border-[var(--border-subtle)]"
-        )}>
-            {isPublic ? <Globe size={10} /> : <Lock size={10} />}
-            {visibility}
-        </span>
-    );
-}
 
 export default function ProjectsPage() {
     const { isAuthenticated } = useAuth();
 
-    // If NOT authenticated, show the Project Manager (Guest View)
-    if (!isAuthenticated) {
-        return (
-            <div className="page-container animate-fade-in">
-                <div className="mb-6">
-                    <p className="text-[var(--text-secondary)]">
-                        Design your project, estimate timelines, and shortlist talents.
-                        <Link href="/login?message=Sign+in+to+save+your+project" className="text-[var(--accent-primary)] hover:underline ml-1">
-                            Sign in to save.
-                        </Link>
-                    </p>
-                </div>
-                <ProjectManager />
-            </div>
-        );
-    }
-
-    // Authenticated View
+    // Authenticated View State
     const [view, setView] = useState<'manage' | 'list'>('manage');
     const [activeProject, setActiveProject] = useState<ProjectSummary | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -90,6 +59,8 @@ export default function ProjectsPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!isAuthenticated) return;
+
         async function fetchProjects() {
             try {
                 setLoading(true);
@@ -115,20 +86,25 @@ export default function ProjectsPage() {
             }
         }
         fetchProjects();
-    }, [statusFilter, typeFilter, view]);
+    }, [statusFilter, typeFilter, view, isAuthenticated]);
 
-    const handleToggleVisibility = async (e: React.MouseEvent, project: any) => {
-        e.preventDefault();
-        e.stopPropagation();
-        try {
-            const newVisibility = project.public_private === 'public' ? 'private' : 'public';
-            await api.projects.update(project.project_id, { public_private: newVisibility });
-            // Optimistic update
-            setProjects(projects.map(p => p.project_id === project.project_id ? { ...p, public_private: newVisibility } : p));
-        } catch (err) {
-            console.error('Failed to toggle visibility:', err);
-        }
-    };
+    // If NOT authenticated, show the Project Manager (Guest View)
+    if (!isAuthenticated) {
+        return (
+            <div className="page-container animate-fade-in">
+                <div className="mb-6">
+                    <p className="text-[var(--text-secondary)]">
+                        Design your project, estimate timelines, and shortlist talents.
+                        <Link href="/login?message=Sign+in+to+save+your+project" className="text-[var(--accent-primary)] hover:underline ml-1">
+                            Sign in to save.
+                        </Link>
+                    </p>
+                </div>
+                <ProjectManager />
+            </div>
+        );
+    }
+
 
     const filteredProjects = projects.filter((project) => {
         if (searchQuery) {
@@ -235,17 +211,7 @@ export default function ProjectsPage() {
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex flex-col gap-2">
                                             <StatusBadge status={project.status} />
-                                            {view === 'manage' && <VisibilityBadge visibility={project.public_private || 'private'} />}
                                         </div>
-                                        {view === 'manage' && (
-                                            <button
-                                                onClick={(e) => handleToggleVisibility(e, project)}
-                                                className="p-2 rounded-full bg-white/5 hover:bg-[var(--accent-primary)]/20 text-[var(--text-muted)] hover:text-[var(--accent-primary)] transition-all"
-                                                title={project.public_private === 'public' ? 'Make Private' : 'Make Public'}
-                                            >
-                                                {project.public_private === 'public' ? <EyeOff size={16} /> : <Eye size={16} />}
-                                            </button>
-                                        )}
                                         {!project.start_date && <div className="text-[var(--text-muted)] text-xs">No Date</div>}
                                         {project.start_date && (
                                             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] bg-white/5 px-2 py-1 rounded">

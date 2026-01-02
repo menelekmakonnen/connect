@@ -212,6 +212,8 @@ export interface ProjectSummary {
     slots_count: number;
     lineup_count: number;
     pending_requests: number;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface RequestInboxItem {
