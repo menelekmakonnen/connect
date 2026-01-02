@@ -22,7 +22,7 @@ function sendRequests(projectId, data, user) {
     
     const sentRequests = [];
     
-    requests.forEach(requestData => {
+    requests.forEach(function(requestData) {
       const requestId = generateRequestId();
       
       const request = {
@@ -91,12 +91,12 @@ function getTalentInbox(userId) {
     const requests = dbSelect(TABLES.REQUESTS, { talent_id: talent.talent_id });
     
     // Filter to active requests only
-    const activeRequests = requests.filter(r => 
-      r.status === 'sent' || r.status === 'viewed' || r.status === 'question'
-    );
+    const activeRequests = requests.filter(function(r) {
+      return r.status === 'sent' || r.status === 'viewed' || r.status === 'question';
+    });
     
     // Enrich with project and role info
-    const enrichedRequests = activeRequests.map(req => {
+    const enrichedRequests = activeRequests.map(function(req) {
       const project = dbFindOne(TABLES.PROJECTS, { project_id: req.project_id });
       const slot = dbFindOne(TABLES.ROLE_SLOTS, { slot_id: req.slot_id });
       const pm = dbFindOne(TABLES.USERS, { user_id: req.sent_by_user_id });
@@ -104,14 +104,16 @@ function getTalentInbox(userId) {
       // Get other lineup members for this project (team preview)
       const lineup = dbSelect(TABLES.LINEUP, { project_id: req.project_id });
       const teamPreview = lineup
-        .filter(l => l.talent_id !== talent.talent_id && l.lineup_status === 'accepted')
+        .filter(function(l) {
+          return l.talent_id !== talent.talent_id && l.lineup_status === 'accepted';
+        })
         .slice(0, 3)
-        .map(l => {
+        .map(function(l) {
           const t = dbFindOne(TABLES.TALENTS, { talent_id: l.talent_id });
           const s = dbFindOne(TABLES.ROLE_SLOTS, { slot_id: l.slot_id });
-          return t && s ? `${t.display_name} (${s.role_name})` : '';
+          return t && s ? t.display_name + " (" + s.role_name + ")" : '';
         })
-        .filter(t => t);
+        .filter(function(t) { return t; });
       
       return {
         request_id: req.request_id,

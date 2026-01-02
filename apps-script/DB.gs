@@ -34,7 +34,7 @@ function dbSelectAll(tableName) {
   
   const rawHeaders = data[0];
   const headers = rawHeaders.map(function(h) { 
-    return h.toString().trim().toLowerCase(); 
+    return h.toString().trim().toLowerCase().replace(/\s+/g, '_'); 
   });
   const rows = data.slice(1);
   
@@ -89,7 +89,9 @@ function dbFindOne(tableName, filter) {
 function dbInsert(tableName, data) {
   const sheet = getSheet(tableName);
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const normalizedHeaders = headers.map(function(h) { return h.toString().trim().toLowerCase(); });
+  const normalizedHeaders = headers.map(function(h) { 
+    return h.toString().trim().toLowerCase().replace(/\s+/g, '_'); 
+  });
   
   // Build row from data matching headers
   const row = headers.map(function(header, index) {
@@ -116,7 +118,7 @@ function dbUpdate(tableName, filter, updates) {
     const row = data[i];
     const rowObj = {};
     headers.forEach(function(header, index) {
-      const key = header.toString().trim().toLowerCase();
+      const key = header.toString().trim().toLowerCase().replace(/\s+/g, '_');
       rowObj[key] = row[index];
     });
     

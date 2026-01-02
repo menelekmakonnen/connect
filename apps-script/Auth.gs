@@ -149,7 +149,7 @@ function requireAuth(e) {
     throw new Error('Authorization header required');
   }
   
-  const token = authHeader.replace('Bearer ', '');
+  const token = authHeader.replace(/bearer\s+/i, '');
   const session = getSession(token);
   
   if (!session) {

@@ -219,7 +219,7 @@ export const api = {
             return apiCall<ProjectSummary[]>(`/projects/my${query ? `?${query}` : ''}`, { method: 'GET' });
         },
         getById: (id: string) => apiCall<Project>(`/projects/${id}`, { method: 'GET' }),
-        create: (data: any) => apiCall(`/projects`, { method: 'POST', body: JSON.stringify(data) }),
+        create: (data: any) => apiCall<{ project_id: string }>(`/projects`, { method: 'POST', body: JSON.stringify(data) }),
         update: (id: string, data: any) => apiCall(`/projects/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
         addToLineup: (projectId: string, data: { slot_id: string; talent_id: string }) =>
             apiCall(`/projects/${projectId}/lineup/add`, { method: 'POST', body: JSON.stringify(data) }),

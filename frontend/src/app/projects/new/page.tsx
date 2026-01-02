@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Select } from '@/components/ui';
 import type { ProjectType, BudgetTier } from '@/lib/types';
-import { ArrowLeft, ArrowRight, Calendar, MapPin, FileText, DollarSign, Globe, Lock } from 'lucide-react';
+import { api } from '@/lib/api';
+import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 const projectTypes = [
