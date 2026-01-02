@@ -52,8 +52,12 @@ function DashboardContent() {
 
             setProjects(projectsData || []);
             setRequests(requestsData || []);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Dashboard load error:', err);
+            if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
+                window.location.href = '/login?error=Session+expired';
+                return;
+            }
             setError('Failed to load dashboard data');
         } finally {
             setLoading(false);
