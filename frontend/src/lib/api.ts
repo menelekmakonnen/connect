@@ -80,6 +80,19 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
     let token = '';
     if (typeof window !== 'undefined') {
         token = localStorage.getItem('icuni_token') || '';
+
+        // Fallback: Try reading from Zustand store persistence
+        if (!token) {
+            try {
+                const storage = localStorage.getItem('icuni-auth');
+                if (storage) {
+                    const parsed = JSON.parse(storage);
+                    token = parsed.state?.token || '';
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
+        }
     }
 
     if (token) {
