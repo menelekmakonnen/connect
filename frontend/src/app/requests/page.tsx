@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button, Card, StatusBadge } from '@/components/ui';
 import { formatDate, formatCurrency, formatRelativeTime, cn } from '@/lib/utils';
 import { api } from '@/lib/api';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useAuthStore } from '@/lib/auth';
 
 // Types imported but not strictly used due to 'any' cast, keeping RequestStatus if needed or removing all if unused.
 // Checking if RequestStatus is used... likely not if request is any.
@@ -55,7 +55,8 @@ export default function RequestsPage() {
         } catch (err: any) {
             console.error('Failed to load requests:', err);
             if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
-                // Token is bad, logout
+                // Clear auth state and redirect to login
+                useAuthStore.getState().clearAuth();
                 window.location.href = '/login?error=Session+expired';
                 return;
             }
@@ -74,6 +75,7 @@ export default function RequestsPage() {
         } catch (err: any) {
             console.error('Failed to load sent requests:', err);
             if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
+                useAuthStore.getState().clearAuth();
                 window.location.href = '/login?error=Session+expired';
                 return;
             }

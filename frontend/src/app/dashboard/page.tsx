@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, Button } from '@/components/ui';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useAuthStore } from '@/lib/auth';
 import { api } from '@/lib/api';
 import { Project, Request, RequestInboxItem, ProjectSummary } from '@/lib/types';
 import {
@@ -55,6 +55,7 @@ function DashboardContent() {
         } catch (err: any) {
             console.error('Dashboard load error:', err);
             if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
+                useAuthStore.getState().clearAuth();
                 window.location.href = '/login?error=Session+expired';
                 return;
             }
