@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button, Card, StatusBadge, RoleBadge } from '@/components/ui';
-import { formatDate, formatCurrency, formatRelativeTime, getProjectTypeLabel, cn } from '@/lib/utils';
+import { Button, Card, StatusBadge } from '@/components/ui';
+import { formatDate, formatCurrency, formatRelativeTime, cn } from '@/lib/utils';
 import { api } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
 
 // Types imported but not strictly used due to 'any' cast, keeping RequestStatus if needed or removing all if unused.
 // Checking if RequestStatus is used... likely not if request is any.
@@ -18,11 +19,7 @@ import {
     Send,
     Check,
     X,
-    MessageCircle,
     Calendar,
-    MapPin,
-    Users,
-    Clock,
     ArrowRight,
     Loader2,
     AlertCircle,
@@ -32,27 +29,22 @@ import {
 type ViewMode = 'inbox' | 'sent';
 
 export default function RequestsPage() {
+    const { isAuthenticated } = useAuth();
     const [viewMode, setViewMode] = useState<ViewMode>('inbox');
     const [requests, setRequests] = useState<any[]>([]);
-
-    // ... (rest of code)
-
-    // Fix apostrophe at line 243
-    <p className="text-sm text-[var(--text-secondary)]">
-        When productions send you booking requests, they&apos;ll appear here.
-    </p>
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [processingId, setProcessingId] = useState<string | null>(null);
 
     // Initial load
     useEffect(() => {
+        if (!isAuthenticated) return; // Guard clause
         if (viewMode === 'inbox') {
             loadInbox();
         } else {
             loadSent();
         }
-    }, [viewMode]);
+    }, [viewMode, isAuthenticated]);
 
     const loadInbox = async () => {
         try {
