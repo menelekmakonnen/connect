@@ -52,8 +52,13 @@ export default function RequestsPage() {
             setError(null);
             const data = await api.requests.inbox();
             setRequests(data);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to load requests:', err);
+            if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
+                // Token is bad, logout
+                window.location.href = '/login?error=Session+expired';
+                return;
+            }
             setError('Failed to load your inbox.');
         } finally {
             setLoading(false);
@@ -66,8 +71,12 @@ export default function RequestsPage() {
             setError(null);
             const data = await api.requests.sent();
             setRequests(data);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to load sent requests:', err);
+            if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
+                window.location.href = '/login?error=Session+expired';
+                return;
+            }
             setError('Failed to load sent requests.');
         } finally {
             setLoading(false);
