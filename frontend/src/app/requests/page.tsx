@@ -29,7 +29,7 @@ import {
 type ViewMode = 'inbox' | 'sent';
 
 export default function RequestsPage() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, token } = useAuth();
     const [viewMode, setViewMode] = useState<ViewMode>('inbox');
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -38,13 +38,13 @@ export default function RequestsPage() {
 
     // Initial load
     useEffect(() => {
-        if (!isAuthenticated) return; // Guard clause
+        if (!isAuthenticated || !token) return; // Wait for token
         if (viewMode === 'inbox') {
             loadInbox();
         } else {
             loadSent();
         }
-    }, [viewMode, isAuthenticated]);
+    }, [viewMode, isAuthenticated, token]);
 
     const loadInbox = async () => {
         try {
