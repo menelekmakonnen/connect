@@ -54,13 +54,7 @@ export default function RequestsPage() {
             setRequests(data);
         } catch (err: any) {
             console.error('Failed to load requests:', err);
-            if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
-                // Clear auth state and redirect to login
-                useAuthStore.getState().clearAuth();
-                window.location.href = '/login?error=Session+expired';
-                return;
-            }
-            setError('Failed to load your inbox.');
+            setError('Failed to load your inbox. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -74,12 +68,7 @@ export default function RequestsPage() {
             setRequests(data);
         } catch (err: any) {
             console.error('Failed to load sent requests:', err);
-            if (err.message?.includes('Invalid or expired session') || err.message?.includes('Authorization header required')) {
-                useAuthStore.getState().clearAuth();
-                window.location.href = '/login?error=Session+expired';
-                return;
-            }
-            setError('Failed to load sent requests.');
+            setError('Failed to load sent requests. Please try again.');
         } finally {
             setLoading(false);
         }
