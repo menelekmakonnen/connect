@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Select } from '@/components/ui';
 import type { ProjectType, BudgetTier } from '@/lib/types';
 import { api } from '@/lib/api';
-import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers, Plus, Check } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const projectTypes = [
     { value: 'music_video', label: 'Music Video', icon: <Zap size={18} /> },
@@ -100,9 +101,9 @@ export default function NewProjectPage() {
                             className={cn(
                                 "w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black transition-all duration-500 border-2",
                                 s === step
-                                    ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_20px_var(--purple-600)] scale-110'
+                                    ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)] scale-110'
                                     : s < step
-                                        ? 'bg-cyan-500 border-cyan-400 text-white shadow-[0_0_15px_var(--cyan-500)]'
+                                        ? 'bg-cyan-500 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]'
                                         : 'bg-[#1a1d29] border-white/10 text-slate-600'
                             )}
                         >

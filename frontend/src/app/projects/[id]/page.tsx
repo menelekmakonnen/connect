@@ -26,7 +26,8 @@ import {
     Briefcase,
     Zap,
     Target,
-    Layers
+    Layers,
+    Coins
 } from 'lucide-react';
 
 function getLineupStatusInfo(status: string) {

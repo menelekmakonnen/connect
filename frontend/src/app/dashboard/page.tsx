@@ -21,7 +21,8 @@ import {
     Target,
     Zap,
     ChevronRight,
-    History
+    History,
+    MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

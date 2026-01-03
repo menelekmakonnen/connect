@@ -35,8 +35,10 @@ export function formatRateRange(min?: number, max?: number, currency: string = '
 /**
  * Format date for display
  */
-export function formatDate(dateString: string): string {
+export function formatDate(dateString?: string | null): string {
+    if (!dateString) return 'Date TBD';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
     return date.toLocaleDateString('en-GB', {
         day: 'numeric',
         month: 'short',
@@ -47,8 +49,10 @@ export function formatDate(dateString: string): string {
 /**
  * Format relative time (e.g., "2 hours ago")
  */
-export function formatRelativeTime(dateString: string): string {
+export function formatRelativeTime(dateString?: string | null): string {
+    if (!dateString) return '';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Button, Card, SearchInput, Select, StatusBadge } from '@/components/ui';
 import { formatDate, getProjectTypeLabel } from '@/lib/utils';
 import type { ProjectSummary, ProjectStatus } from '@/lib/types';
-import { Plus, FolderKanban, Calendar, MapPin, Loader2, ArrowRight, Target, Sparkles } from 'lucide-react';
+import { Plus, FolderKanban, Calendar, MapPin, Loader2, ArrowRight, Target, Sparkles, Clock } from 'lucide-react';
 import { ProjectManager } from '@/components/projects/ProjectManager';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth';

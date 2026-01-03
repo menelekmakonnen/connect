@@ -76,3 +76,17 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 );
 
 Select.displayName = 'Select';
+
+export const Textarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+    ({ className, ...props }, ref) => {
+        return (
+            <textarea
+                ref={ref}
+                className={cn('input min-h-[100px] py-3', className)}
+                {...props}
+            />
+        );
+    }
+);
+
+Textarea.displayName = 'Textarea';
