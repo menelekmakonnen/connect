@@ -1,25 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAppStore, ScheduleItem } from '@/lib/store';
+import { useAppStore } from '@/lib/store';
 import { cn, formatCurrency } from '@/lib/utils';
-import { Button, Input, Card } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import {
     Calendar,
     Coins,
     Trash2,
-    Send,
     Save,
-    Info,
-    ChevronDown,
-    ChevronUp,
     LayoutGrid,
     Users,
     Clock,
-    Check,
     Loader2,
     Globe,
-    Lock
+    Lock,
+    Sparkles,
+    Target,
+    Zap
 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Project, ProjectSummary } from '@/lib/types';
@@ -34,10 +32,9 @@ const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN'];
 
 export function ProjectManager({ initialData }: { initialData?: Project | ProjectSummary }) {
     const { draft, updateDraft, updateScheduleItem, removeFromProject, clearDraft, setDraft } = useAppStore();
-    const [activeTab, setActiveTab] = useState<'details' | 'schedule' | 'talents'>('details');
     const [isSaving, setIsSaving] = useState(false);
     const router = useRouter();
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated } = useAuth();
 
     // Initialize from prop if provided
     useEffect(() => {
@@ -45,11 +42,9 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
             setDraft({
                 name: initialData.title,
                 type: initialData.type,
-                // Map other fields as best as possible
-                budget: (initialData as any).budget || 50000, // Fallback if budget isn't in ProjectSummary
+                budget: (initialData as any).budget || 50000,
                 visibility: (initialData as any).visibility || (initialData as any).public_private || 'public',
-                selectedTalents: [], // We'd need to fetch these if editing an existing project full w/ slots
-                // ... map other fields
+                selectedTalents: [],
             } as any);
         }
     }, [initialData, setDraft]);
@@ -65,10 +60,9 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
             const projectData = {
                 title: draft.name,
                 type: draft.type || 'other',
-                budget_tier: draft.budget > 50000 ? 'high' : 'mid', // Approximate mapping
+                budget_tier: draft.budget > 50000 ? 'high' : 'mid',
                 start_date: draft.startDate || '',
                 visibility: draft.visibility,
-                // ... map other fields
             };
 
             if (initialData && initialData.project_id) {
@@ -77,154 +71,140 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                 await api.projects.create(projectData);
             }
 
-            // alert('Project saved!');
             router.refresh();
         } catch (e) {
             console.error(e);
-            alert('Failed to save project');
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleSendRequest = () => {
-        // Implementation for sending requests (e.g. open a modal or redirect)
-        // For now just alert
-        alert("This feature would send requests to the selected talents.");
-    };
-
     return (
-        <div className="space-y-6 animate-fade-in">
-            {/* Header / Project Name */}
-            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                <div className="flex-1 w-full">
+        <div className="space-y-10 animate-fade-in group/main">
+            {/* Project Title Area */}
+            <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between relative z-10">
+                <div className="flex-1 w-full space-y-2">
+                    <div className="flex items-center gap-3 mb-1">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[9px] font-bold uppercase tracking-[0.15em]">
+                            <Target size={12} />
+                            Project Scope
+                        </div>
+                        {draft.selectedTalents.length > 0 && (
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[9px] font-bold uppercase tracking-[0.15em]">
+                                <Users size={12} />
+                                {draft.selectedTalents.length} Staffed
+                            </div>
+                        )}
+                    </div>
                     <input
                         type="text"
                         value={draft.name}
                         onChange={(e) => updateDraft({ name: e.target.value })}
-                        placeholder="Untitled Project"
-                        className="text-4xl font-bold bg-transparent border-none outline-none placeholder:text-[var(--text-muted)] w-full"
+                        placeholder="Project Name..."
+                        className="text-5xl font-black bg-transparent border-none outline-none placeholder:text-slate-800 text-white w-full tracking-tight focus:ring-0"
                     />
-                    <div className="flex items-center gap-4 mt-2 text-sm text-[var(--text-secondary)]">
-                        <span className="flex items-center gap-1">
-                            {draft.type || 'Select Type'}
-                            {draft.subType && ` • ${draft.subType}`}
-                        </span>
-                        <span>•</span>
-                        <span>{draft.selectedTalents.length} Talents Selected</span>
-                    </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <Button variant="secondary" onClick={clearDraft} title="Clear Draft">
-                        <Trash2 size={16} />
+                <div className="flex items-center gap-3 shrink-0">
+                    <Button
+                        variant="secondary"
+                        onClick={clearDraft}
+                        className="h-14 w-14 p-0 rounded-2xl bg-white/5 border-white/10 text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all border group/clear"
+                    >
+                        <Trash2 size={24} className="group-hover/clear:scale-110 transition-transform" />
                     </Button>
 
-                    {isAuthenticated ? (
-                        <Button onClick={handleSave} disabled={isSaving || !draft.name}>
-                            {isSaving ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
-                            {initialData ? 'Save Changes' : 'Save Project'}
-                        </Button>
-                    ) : (
-                        <Button onClick={handleSendRequest} disabled={draft.selectedTalents.length === 0}>
-                            <Send size={16} className="mr-2" />
-                            Send Requests
-                        </Button>
-                    )}
+                    <Button
+                        className="h-14 px-8 rounded-2xl btn-gradient border-none group/save font-bold text-lg"
+                        onClick={handleSave}
+                        disabled={isSaving || !draft.name}
+                    >
+                        {isSaving ? <Loader2 size={24} className="animate-spin" /> : <Save size={24} className="transition-transform group-hover/save:scale-110" />}
+                        <span className="ml-3">{initialData ? 'Update Pipeline' : 'Launch Project'}</span>
+                    </Button>
                 </div>
             </div>
 
-            {/* Main Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                {/* Core Config */}
+                <div className="lg:col-span-2 space-y-8">
+                    <Card className="p-10 bg-[#1e2130] border-white/5 rounded-[32px] shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
 
-                {/* Left Column: Form & Details */}
-                <div className="lg:col-span-2 space-y-6">
-                    <Card className="p-6">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                            <LayoutGrid size={18} />
-                            Project Details
+                        <h3 className="text-xl font-bold text-white mb-8 flex items-center gap-3">
+                            <LayoutGrid size={22} className="text-purple-400" />
+                            Production Setup
                         </h3>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Type</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Category</label>
                                 <select
                                     value={draft.type}
                                     onChange={(e) => updateDraft({ type: e.target.value })}
-                                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg p-2.5 outline-none focus:border-[var(--accent-primary)]"
+                                    className="w-full bg-black/40 border border-white/10 rounded-2xl p-4 text-white outline-none focus:border-purple-500 transition-all cursor-pointer appearance-none shadow-inner"
                                 >
-                                    <option value="">Select Type...</option>
+                                    <option value="">Select Category...</option>
                                     {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Visibility</label>
-                                <div className="flex bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg p-1">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Control</label>
+                                <div className="flex bg-black/40 border border-white/10 rounded-2xl p-1.5 shadow-inner">
                                     <button
                                         onClick={() => updateDraft({ visibility: 'public' })}
                                         className={cn(
-                                            "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-md text-sm transition-all",
+                                            "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-xs font-bold transition-all",
                                             draft.visibility === 'public'
-                                                ? "bg-[var(--accent-primary)] text-black"
-                                                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                                                ? "bg-purple-600 text-white shadow-lg"
+                                                : "text-slate-500 hover:text-slate-300"
                                         )}
                                     >
-                                        <Globe size={14} />
+                                        <Globe size={16} />
                                         Public
                                     </button>
                                     <button
                                         onClick={() => updateDraft({ visibility: 'private' })}
                                         className={cn(
-                                            "flex-1 flex items-center justify-center gap-2 py-1.5 rounded-md text-sm transition-all",
+                                            "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-xs font-bold transition-all",
                                             draft.visibility === 'private'
-                                                ? "bg-[var(--accent-primary)] text-black"
-                                                : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                                                ? "bg-purple-600 text-white shadow-lg"
+                                                : "text-slate-500 hover:text-slate-300"
                                         )}
                                     >
-                                        <Lock size={14} />
+                                        <Lock size={16} />
                                         Private
                                     </button>
                                 </div>
                             </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Genre/Style</label>
-                                <Input
-                                    value={draft.genre}
-                                    onChange={(e) => updateDraft({ genre: e.target.value })}
-                                    placeholder="e.g. Sci-Fi, Minimalist, Upbeat"
-                                />
-                            </div>
                         </div>
 
-                        <div className="space-y-2 mb-4">
-                            <label className="text-sm font-medium">Brief / Logline</label>
+                        <div className="space-y-3 mb-10">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Production Brief</label>
                             <textarea
                                 value={draft.brief}
                                 onChange={(e) => updateDraft({ brief: e.target.value })}
-                                placeholder="What is this project about?"
-                                rows={3}
-                                className="w-full bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg p-3 outline-none focus:border-[var(--accent-primary)] resize-none"
+                                placeholder="Describe your vision, requirements, and shoot goals..."
+                                rows={4}
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl p-5 text-white outline-none focus:border-purple-500 transition-all resize-none shadow-inner placeholder:text-slate-700"
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Budget Slider */}
-                            <div className="bg-[var(--bg-secondary)] p-4 rounded-lg space-y-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Budget Section */}
+                            <div className="bg-black/20 p-8 rounded-3xl border border-white/5 space-y-6">
                                 <div className="flex justify-between items-center">
-                                    <label className="text-sm font-medium flex items-center gap-1">
-                                        <Coins size={14} /> Budget Est.
-                                    </label>
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Investment Deck</label>
                                     <select
                                         value={draft.currency}
                                         onChange={(e) => updateDraft({ currency: e.target.value as any })}
-                                        className="bg-transparent text-xs font-bold outline-none"
+                                        className="bg-purple-500/10 text-[10px] font-bold text-purple-400 outline-none border border-purple-500/20 px-2 py-1 rounded"
                                     >
                                         {CURRENCIES.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
-                                <div className="text-2xl font-bold text-[var(--accent-primary)]">
+                                <div className="text-4xl font-black text-white tracking-tighter">
                                     {formatCurrency(draft.budget, draft.currency)}
                                 </div>
                                 <input
@@ -234,20 +214,25 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                                     step="1000"
                                     value={draft.budget}
                                     onChange={(e) => updateDraft({ budget: parseInt(e.target.value) })}
-                                    className="w-full accent-[var(--accent-primary)]"
+                                    className="w-full h-1.5 bg-black/60 rounded-full appearance-none accent-purple-500 cursor-pointer"
                                 />
+                                <div className="flex justify-between text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">
+                                    <span>Indie</span>
+                                    <span>Professional</span>
+                                    <span>Premium</span>
+                                </div>
                             </div>
 
-                            {/* Ambition Slider */}
-                            <div className="bg-[var(--bg-secondary)] p-4 rounded-lg space-y-3">
-                                <label className="text-sm font-medium flex justify-between">
+                            {/* Scale/Ambition Section */}
+                            <div className="bg-black/20 p-8 rounded-3xl border border-white/5 space-y-6">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex justify-between">
                                     Ambition Level
-                                    <span className="text-[var(--accent-primary)] font-bold">{draft.ambition}/10</span>
+                                    <span className="text-purple-400 font-bold tracking-normal">{draft.ambition}/10</span>
                                 </label>
-                                <div className="text-xs text-[var(--text-muted)] h-8">
-                                    {draft.ambition < 4 ? "Low budget / Indie feel" :
-                                        draft.ambition < 8 ? "Professional / High value" :
-                                            "Blockbuster / World Class"}
+                                <div className="text-sm font-bold text-white h-10 flex items-center">
+                                    {draft.ambition < 4 ? <span className="flex items-center gap-2"><Sparkles size={16} className="text-yellow-500" /> Indie Spirit</span> :
+                                        draft.ambition < 8 ? <span className="flex items-center gap-2"><Zap size={16} className="text-cyan-500" /> Commercial Grade</span> :
+                                            <span className="flex items-center gap-2 animate-pulse"><Zap size={16} className="text-purple-500" /> Blockbuster Vision</span>}
                                 </div>
                                 <input
                                     type="range"
@@ -256,132 +241,163 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                                     step="1"
                                     value={draft.ambition}
                                     onChange={(e) => updateDraft({ ambition: parseInt(e.target.value) })}
-                                    className="w-full accent-[var(--accent-primary)]"
+                                    className="w-full h-1.5 bg-black/60 rounded-full appearance-none accent-purple-500 cursor-pointer"
                                 />
+                                <div className="flex justify-between text-[8px] font-black text-slate-700 uppercase tracking-[0.2em]">
+                                    <span>Scale 1</span>
+                                    <span>Scale 10</span>
+                                </div>
                             </div>
                         </div>
                     </Card>
 
-                    {/* Interactive Scheduler */}
-                    <Card className="p-6">
-                        <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                            <Clock size={18} />
-                            Production Timeline
+                    {/* Timeline Config */}
+                    <Card className="p-10 bg-[#1e2130] border-white/5 rounded-[32px] shadow-2xl">
+                        <h3 className="text-xl font-bold text-white mb-10 flex items-center gap-3">
+                            <Clock size={22} className="text-purple-400" />
+                            Production Pipeline
                         </h3>
 
-                        <div className="flex flex-col md:flex-row gap-6 mb-8">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Target Start Date</label>
-                                <input
-                                    type="date"
-                                    value={draft.startDate ? draft.startDate.split('T')[0] : ''}
-                                    onChange={(e) => updateDraft({ startDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
-                                    className="bg-[var(--bg-secondary)] border border-[var(--border-subtle)] rounded-lg p-2 text-sm outline-none focus:border-[var(--accent-primary)]"
-                                />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Start Date</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
+                                    <input
+                                        type="date"
+                                        value={draft.startDate ? draft.startDate.split('T')[0] : ''}
+                                        onChange={(e) => updateDraft({ startDate: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                                        className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-white outline-none focus:border-purple-500 transition-all cursor-pointer shadow-inner"
+                                    />
+                                </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Est. Completion</label>
-                                <div className="p-2 text-sm font-bold text-[var(--text-primary)]">
-                                    {endDate ? endDate.toLocaleDateString() : 'Set start date'} ({totalDuration} weeks)
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Wrapped & Delivered</label>
+                                <div className="bg-black/40 border border-white/5 rounded-2xl px-6 py-4 flex items-center justify-between shadow-inner">
+                                    <span className="text-lg font-bold text-white">
+                                        {endDate ? endDate.toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }) : 'Pending Start'}
+                                    </span>
+                                    <span className="text-[10px] font-black text-purple-400 bg-purple-500/10 px-2.5 py-1.5 rounded-lg border border-purple-500/20">
+                                        {totalDuration} WEEKS
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Timeline Visual */}
-                        <div className="space-y-6">
+                        <div className="space-y-8 relative">
                             {draft.schedule.map((item, idx) => (
-                                <div key={item.phase} className={cn("relative transition-opacity", !item.enabled && "opacity-50 grayscale")}>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="checkbox"
-                                                checked={item.enabled}
-                                                onChange={(e) => updateScheduleItem(idx, { enabled: e.target.checked })}
-                                                className="w-4 h-4 rounded border-[var(--border-subtle)] accent-[var(--accent-primary)]"
-                                            />
-                                            <span className="font-medium text-sm">{item.phase}</span>
+                                <div key={item.phase} className={cn("relative transition-all duration-500", !item.enabled && "opacity-30 grayscale blur-[1px]")}>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-4">
+                                            <div
+                                                className={cn(
+                                                    "w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all",
+                                                    item.enabled ? "bg-purple-600 border-purple-400 shadow-[0_0_10px_var(--purple-600)]" : "border-slate-800 bg-black/40"
+                                                )}
+                                                onClick={() => updateScheduleItem(idx, { enabled: !item.enabled })}
+                                            >
+                                                {item.enabled && <Zap size={12} className="text-white fill-white" />}
+                                            </div>
+                                            <span className="font-bold text-white text-sm tracking-wide">{item.phase}</span>
                                         </div>
-                                        <span className="text-xs font-mono bg-[var(--bg-secondary)] px-2 py-1 rounded">
-                                            {item.durationWeeks} weeks
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-black/40 border border-white/5 px-2.5 py-1.5 rounded-lg">
+                                            Scale: {item.durationWeeks} weeks
                                         </span>
                                     </div>
-                                    {/* Bar Slider */}
-                                    <div className="relative h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden group">
+
+                                    <div className="relative h-2 bg-black/60 rounded-full overflow-hidden group">
                                         <div
-                                            className="absolute inset-y-0 left-0 bg-[var(--accent-primary)] rounded-full transition-all"
-                                            style={{ width: `${(item.durationWeeks / 20) * 100}%`, minWidth: '4px' }}
+                                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+                                            style={{ width: `${(item.durationWeeks / 20) * 100}%`, minWidth: '8px' }}
+                                        />
+                                        <input
+                                            type="range"
+                                            min="1"
+                                            max="20"
+                                            step="1"
+                                            value={item.durationWeeks}
+                                            onChange={(e) => updateScheduleItem(idx, { durationWeeks: parseInt(e.target.value) })}
+                                            disabled={!item.enabled}
+                                            className="absolute inset-0 w-full opacity-0 cursor-ew-resize z-20"
                                         />
                                     </div>
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max="20"
-                                        step="1"
-                                        value={item.durationWeeks}
-                                        onChange={(e) => updateScheduleItem(idx, { durationWeeks: parseInt(e.target.value) })}
-                                        disabled={!item.enabled}
-                                        className="absolute inset-0 w-full opacity-0 cursor-ew-resize"
-                                        title={`Adjust ${item.phase} duration`}
-                                    />
                                 </div>
                             ))}
                         </div>
                     </Card>
                 </div>
 
-                {/* Right Column: Talent List */}
+                {/* Staffing Column */}
                 <div className="lg:col-span-1">
-                    <Card className="p-6 h-full flex flex-col bg-[var(--bg-secondary)]/50 border-l border-[var(--border-subtle)]">
-                        <h3 className="text-lg font-semibold mb-4 flex items-center justify-between">
-                            <span className="flex items-center gap-2"><Users size={18} /> Selected Talent</span>
-                            <span className="text-sm bg-[var(--accent-primary)] text-black px-2 py-0.5 rounded-full">
-                                {draft.selectedTalents.length}
-                            </span>
-                        </h3>
+                    <div className="sticky top-24 space-y-6">
+                        <Card className="bg-[#1e2130] border-white/5 rounded-[32px] p-8 flex flex-col min-h-[500px] shadow-2xl relative overflow-hidden">
+                            <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-500/5 blur-[50px] rounded-full translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
-                        {draft.selectedTalents.length === 0 ? (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center text-[var(--text-muted)] p-8 border-2 border-dashed border-[var(--border-subtle)] rounded-lg">
-                                <Users size={32} className="mb-2 opacity-50" />
-                                <p className="text-sm">No talents added yet.</p>
-                                <p className="text-xs mt-1">Browse talents and click "Add to Project" to build your team.</p>
-                                <Button className="mt-4" variant="secondary" size="sm" onClick={() => window.location.href = '/talents'}>
-                                    Browse Talent
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
-                                {draft.selectedTalents.map((talent) => (
-                                    <div key={talent.talent_id} className="flex items-center gap-3 p-3 bg-[var(--bg-elevated)] rounded-lg group hover:ring-1 hover:ring-[var(--border-default)] transition-all">
-                                        <div className="w-10 h-10 rounded-full bg-[var(--bg-surface)] overflow-hidden flex-shrink-0">
-                                            {talent.profile_photo_url ? (
-                                                <img src={talent.profile_photo_url} alt={talent.display_name} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-xs font-bold">{talent.display_name.charAt(0)}</div>
-                                            )}
+                            <h3 className="text-xl font-bold text-white mb-8 flex items-center justify-between relative z-10">
+                                <span className="flex items-center gap-3">
+                                    <Users size={22} className="text-cyan-400" />
+                                    Elite Crew
+                                </span>
+                                <span className="text-[10px] font-black bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 px-3 py-1 rounded-full">
+                                    {draft.selectedTalents.length} SLOTS
+                                </span>
+                            </h3>
+
+                            <div className="flex-1 overflow-y-auto space-y-4 pr-1 custom-scrollbar relative z-10">
+                                {draft.selectedTalents.length === 0 ? (
+                                    <div className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-white/5 rounded-3xl bg-black/10 transition-colors hover:border-white/10">
+                                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/5">
+                                            <Users size={32} className="text-slate-600" />
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-medium text-sm truncate">{talent.display_name}</div>
-                                            <div className="text-xs text-[var(--text-muted)] truncate">{talent.roles?.[0]?.role_name || 'Creative'}</div>
-                                        </div>
-                                        <button
-                                            onClick={() => removeFromProject(talent.talent_id)}
-                                            className="text-[var(--text-muted)] hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            title="Remove"
+                                        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest leading-relaxed">No talent <br />shortlisted yet.</p>
+                                        <Button
+                                            className="mt-8 bg-white/5 border border-white/10 text-white rounded-xl hover:bg-white/10"
+                                            onClick={() => router.push('/talents')}
                                         >
-                                            <Trash2 size={16} />
-                                        </button>
+                                            Explore Roster
+                                        </Button>
                                     </div>
-                                ))}
+                                ) : (
+                                    draft.selectedTalents.map((talent) => (
+                                        <div key={talent.talent_id} className="flex items-center gap-4 p-4 bg-black/20 rounded-2xl border border-white/5 hover:border-cyan-500/30 transition-all group/talent cursor-default">
+                                            <div className="w-12 h-12 rounded-xl bg-slate-800 border border-white/5 overflow-hidden flex-shrink-0 group-hover/talent:scale-105 transition-transform">
+                                                {talent.profile_photo_url ? (
+                                                    <img src={talent.profile_photo_url} alt={talent.display_name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-lg font-black text-slate-500">{talent.display_name.charAt(0)}</div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-bold text-white text-sm truncate group-hover/talent:text-cyan-400 transition-colors uppercase tracking-tight">{talent.display_name}</div>
+                                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">{talent.roles?.[0]?.role_name || 'Creative'}</div>
+                                            </div>
+                                            <button
+                                                onClick={() => removeFromProject(talent.talent_id)}
+                                                className="text-slate-700 hover:text-red-500 p-2 opacity-0 group-hover/talent:opacity-100 transition-all hover:bg-red-500/10 rounded-xl"
+                                                title="Remove Talent"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                    ))
+                                )}
                             </div>
-                        )}
 
-                        <div className="mt-6 pt-4 border-t border-[var(--border-default)]">
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-[var(--text-secondary)]">Est. Talent Fees</span>
-                                <span className="font-mono font-bold">~{formatCurrency(draft.selectedTalents.length * 1500, draft.currency)}</span>
+                            <div className="mt-10 pt-8 border-t border-white/5 relative z-10">
+                                <div className="flex justify-between items-center px-2">
+                                    <div className="space-y-1">
+                                        <div className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Est. Crew Commitment</div>
+                                        <div className="text-xl font-black text-white tracking-tight">
+                                            ~{formatCurrency(draft.selectedTalents.length * 1500, draft.currency)}
+                                        </div>
+                                    </div>
+                                    <div className="h-10 w-10 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20">
+                                        <Coins size={20} className="text-cyan-400" />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </Card>
+                        </Card>
+                    </div>
                 </div>
             </div>
         </div>

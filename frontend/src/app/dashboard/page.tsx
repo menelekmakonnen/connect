@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, Button } from '@/components/ui';
+import { Button, StatCard } from '@/components/ui';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useAuth, useAuthStore } from '@/lib/auth';
+import { useAuth } from '@/lib/auth';
 import { api } from '@/lib/api';
-import { Project, Request, RequestInboxItem, ProjectSummary } from '@/lib/types';
+import { Request, RequestInboxItem, ProjectSummary } from '@/lib/types';
 import {
     Briefcase,
     Users,
@@ -15,9 +15,15 @@ import {
     Plus,
     Loader2,
     Clock,
-    CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    ArrowRight,
+    Trophy,
+    Target,
+    Zap,
+    ChevronRight,
+    History
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
     return (
@@ -44,17 +50,16 @@ function DashboardContent() {
             setLoading(true);
             setError(null);
 
-            // Load projects and requests in parallel
             const [projectsData, requestsData] = await Promise.all([
                 api.projects.list(),
-                api.requests.inbox().catch(() => []), // Graceful fallback if endpoint not ready
+                api.requests.inbox().catch(() => []),
             ]);
 
             setProjects(projectsData || []);
             setRequests(requestsData || []);
         } catch (err: any) {
             console.error('Dashboard load error:', err);
-            setError('Failed to load dashboard data');
+            setError('System synchronization failed');
         } finally {
             setLoading(false);
         }
@@ -62,229 +67,293 @@ function DashboardContent() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-12 h-12 animate-spin text-[var(--accent-primary)]" />
+            <div className="flex flex-col items-center justify-center min-h-[500px] gap-6">
+                <div className="relative">
+                    <div className="absolute inset-0 bg-purple-500/20 blur-xl rounded-full animate-pulse" />
+                    <Loader2 className="w-16 h-16 animate-spin text-purple-500 relative z-10 opactiy-50" />
+                </div>
+                <div className="flex flex-col items-center gap-2">
+                    <p className="text-white font-black text-xs uppercase tracking-[0.3em]">Connecting to ICUNI Engine</p>
+                    <div className="h-1 w-48 bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-purple-500 animate-loading-bar" />
+                    </div>
+                </div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="text-center py-12">
-                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-                <p className="text-lg text-[var(--text-secondary)]">{error}</p>
-                <Button onClick={loadDashboardData} className="mt-4">
-                    Retry
+            <div className="text-center py-32 px-4 max-w-lg mx-auto">
+                <div className="w-20 h-20 rounded-[28px] bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-8">
+                    <AlertCircle className="w-10 h-10 text-red-500" />
+                </div>
+                <h3 className="text-3xl font-black text-white mb-4 tracking-tight">Sync Offline</h3>
+                <p className="text-slate-500 mb-10 leading-relaxed">The production network encountered a handshake error while verifying your session data.</p>
+                <Button onClick={loadDashboardData} className="btn-gradient border-none px-12 h-14 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-purple-900/20">
+                    Re-establish Link
                 </Button>
             </div>
         );
     }
 
-    // Calculate stats
-    const activeProjects = projects.filter(p => ['staffing', 'requests_sent', 'booked', 'locked'].includes(p.status));
-    const pendingRequests = requests.filter(r => ['sent', 'viewed'].includes(r.status));
+    const activeProjectList = projects.filter(p => ['staffing', 'requests_sent', 'booked', 'locked', 'shortlisted'].includes(p.status));
+    const pendingRequestCount = requests.filter(r => ['sent', 'viewed'].includes(r.status)).length;
+    const completedCount = projects.filter(p => p.status === 'completed').length;
 
     return (
-        <div className="space-y-8 pt-6 pb-12">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold mb-2">
-                    Welcome back{user?.display_name ? `, ${user.display_name}` : ''}!
-                </h1>
-                <p className="text-[var(--text-secondary)]">
-                    Here's what's happening with your projects
-                </p>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-[var(--text-muted)] mb-1">Active Projects</p>
-                            <p className="text-3xl font-bold">{activeProjects.length}</p>
+        <div className="space-y-12 py-8 animate-fade-in max-w-[1600px] mx-auto">
+            {/* Command Center Header */}
+            <div className="relative px-2">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+                    <div className="space-y-4">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 shadow-xl backdrop-filter backdrop-blur-md">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500 shadow-[0_0_8px_var(--purple-500)]"></span>
+                            </span>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Status: Optimal</span>
                         </div>
-                        <div className="w-12 h-12 rounded-full bg-[var(--role-camera)]/20 flex items-center justify-center">
-                            <Briefcase className="text-[var(--role-camera)]" size={24} />
+
+                        <div>
+                            <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-none mb-4">
+                                Welcome, <span className="gradient-text">{user?.display_name ? user.display_name.split(' ')[0] : 'Commander'}</span>
+                            </h1>
+                            <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+                                Production Control Center • Ghana Production Network
+                            </p>
                         </div>
                     </div>
-                </Card>
 
-                <Card className="p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-[var(--text-muted)] mb-1">Total Projects</p>
-                            <p className="text-3xl font-bold">{projects.length}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-[var(--accent-glow)] flex items-center justify-center">
-                            <CheckCircle2 className="text-[var(--accent-primary)]" size={24} />
-                        </div>
+                    <div className="flex items-center gap-4 shrink-0">
+                        <Button
+                            className="h-16 px-10 rounded-3xl btn-gradient border-none font-black uppercase tracking-widest text-[10px] gap-3 shadow-[0_0_30px_rgba(139,92,246,0.3)] group"
+                            onClick={() => router.push('/projects/new')}
+                        >
+                            <Plus size={20} className="transition-transform group-hover:rotate-90" />
+                            Initialize Production
+                        </Button>
                     </div>
-                </Card>
-
-                <Card className="p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-[var(--text-muted)] mb-1">Pending Requests</p>
-                            <p className="text-3xl font-bold">{pendingRequests.length}</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-[var(--role-hairmakeup)]/20 flex items-center justify-center">
-                            <Mail className="text-[var(--role-hairmakeup)]" size={24} />
-                        </div>
-                    </div>
-                </Card>
-            </div>
-
-            {/* Quick Actions */}
-            <Card className="p-6">
-                <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Button
-                        className="justify-start h-auto py-4"
-                        onClick={() => router.push('/projects/new')}
-                    >
-                        <Plus size={20} />
-                        <div className="text-left">
-                            <div className="font-semibold">New Project</div>
-                            <div className="text-xs opacity-80">Start planning a production</div>
-                        </div>
-                    </Button>
-
-                    <Button
-                        variant="secondary"
-                        className="justify-start h-auto py-4"
-                        onClick={() => router.push('/talents')}
-                    >
-                        <Users size={20} />
-                        <div className="text-left">
-                            <div className="font-semibold">Browse Talents</div>
-                            <div className="text-xs opacity-80">Find talent for your crew</div>
-                        </div>
-                    </Button>
-
-                    <Button
-                        variant="secondary"
-                        className="justify-start h-auto py-4"
-                        onClick={() => router.push('/requests')}
-                    >
-                        <Mail size={20} />
-                        <div className="text-left">
-                            <div className="font-semibold">View Requests</div>
-                            <div className="text-xs opacity-80">Manage your inbox</div>
-                        </div>
-                    </Button>
                 </div>
-            </Card>
+            </div>
 
-            {/* Active Projects */}
-            {activeProjects.length > 0 && (
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold">Active Projects</h2>
-                        <Link href="/projects">
-                            <Button variant="ghost" size="sm">View All</Button>
+            {/* Platform Analytics */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard
+                    label="Active Missions"
+                    value={activeProjectList.length.toString()}
+                    icon={Target}
+                    variant="purple"
+                    trend={{ value: 8, isPositive: true }}
+                />
+                <StatCard
+                    label="Talent Pipeline"
+                    value={pendingRequestCount.toString()}
+                    icon={Mail}
+                    variant="cyan"
+                    trend={{ value: 2, isPositive: true }}
+                />
+                <StatCard
+                    label="Archived Success"
+                    value={completedCount.toString()}
+                    icon={Trophy}
+                    variant="green"
+                />
+                <StatCard
+                    label="Network Reach"
+                    value="2.4k"
+                    icon={Users}
+                    variant="pink"
+                    trend={{ value: 15, isPositive: true }}
+                />
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
+                {/* Active Productions Roster */}
+                <div className="xl:col-span-2 space-y-8">
+                    <div className="flex items-center justify-between px-4">
+                        <h2 className="text-xl font-black text-white flex items-center gap-4 uppercase tracking-tighter">
+                            <div className="h-10 w-10 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                                <Briefcase size={20} className="text-purple-400" />
+                            </div>
+                            Production Roster
+                        </h2>
+                        <Link href="/projects" className="text-[10px] font-black text-slate-500 hover:text-purple-400 transition-colors uppercase tracking-[0.2em] flex items-center gap-2 group">
+                            Expand Roster
+                            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {activeProjects.slice(0, 4).map(project => (
-                            <Card
-                                key={project.project_id}
-                                className="p-4 hover:border-[var(--accent-primary)] cursor-pointer transition-all"
-                                onClick={() => router.push(`/projects/${project.project_id}`)}
-                            >
-                                <div className="flex items-start justify-between mb-2">
-                                    <h3 className="font-semibold">{project.title}</h3>
-                                    <span className={`
-                                        px-2 py-1 rounded text-xs
-                                        ${['staffing', 'requests_sent', 'booked'].includes(project.status) ? 'bg-green-500/20 text-green-400' : ''}
-                                        ${project.status === 'draft' ? 'bg-blue-500/20 text-blue-400' : ''}
-                                    `}>
-                                        {project.status.replace('_', ' ')}
-                                    </span>
-                                </div>
-
-                                <p className="text-sm text-[var(--text-secondary)] mb-3">
-                                    {project.location_city} • {project.type}
-                                </p>
-
-                                <div className="flex items-center gap-4 text-xs text-[var(--text-muted)]">
-                                    <span>{project.slots_count || 0} roles</span>
-                                    <span>{project.lineup_count || 0} booked</span>
-                                    {(project.pending_requests || 0) > 0 && (
-                                        <span className="text-[var(--accent-primary)]">
-                                            {project.pending_requests} pending
-                                        </span>
-                                    )}
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Recent Requests */}
-            {requests.length > 0 && (
-                <div>
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-xl font-bold">Recent Requests</h2>
-                        <Link href="/requests">
-                            <Button variant="ghost" size="sm">View All</Button>
-                        </Link>
-                    </div>
-
-                    <Card className="divide-y divide-[var(--border-subtle)]">
-                        {requests.slice(0, 5).map((item) => {
-                            const request = item as Request & RequestInboxItem;
-                            return (
+                    {activeProjectList.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {activeProjectList.slice(0, 4).map(project => (
                                 <div
-                                    key={request.request_id}
-                                    className="p-4 hover:bg-[var(--bg-hover)] cursor-pointer transition-all"
-                                    onClick={() => router.push('/requests')}
+                                    key={project.project_id}
+                                    className="bg-[#1e2130] p-8 rounded-[40px] border border-white/5 hover:border-purple-500/30 transition-all cursor-pointer group hover-lift active:scale-95 shadow-xl relative overflow-hidden"
+                                    onClick={() => router.push(`/projects/${project.project_id}`)}
                                 >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <p className="font-medium mb-1">{request.project_title || request.project_id}</p>
-                                            <p className="text-sm text-[var(--text-secondary)]">
-                                                {request.role_name || 'View Details'}
-                                            </p>
+                                    <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-10 transition-opacity">
+                                        <Zap size={64} className="text-purple-500" />
+                                    </div>
+
+                                    <div className="flex items-start justify-between mb-8 relative z-10">
+                                        <div className="flex-1 min-w-0 pr-4">
+                                            <h3 className="text-xl font-black text-white group-hover:text-purple-400 transition-colors truncate tracking-tight">{project.title}</h3>
+                                            <div className="flex items-center gap-2 mt-2">
+                                                <div className="h-1 w-1 rounded-full bg-slate-700" />
+                                                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{project.type.replace('_', ' ')}</span>
+                                            </div>
                                         </div>
-                                        <div className="text-right">
-                                            <span className={`
-                                                px-2 py-1 rounded text-xs
-                                                ${request.status === 'accepted' ? 'bg-green-500/20 text-green-400' : ''}
-                                                ${['sent', 'viewed'].includes(request.status) ? 'bg-yellow-500/20 text-yellow-400' : ''}
-                                                ${['declined', 'cancelled'].includes(request.status) ? 'bg-red-500/20 text-red-400' : ''}
-                                            `}>
-                                                {request.status}
-                                            </span>
-                                            <p className="text-xs text-[var(--text-muted)] mt-1">
-                                                <Clock size={12} className="inline mr-1" />
-                                                {new Date(request.sent_at || Date.now()).toLocaleDateString()}
-                                            </p>
+                                        <div className={cn(
+                                            "mt-1 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border shrink-0",
+                                            ['staffing', 'requests_sent', 'booked'].includes(project.status)
+                                                ? 'bg-purple-500/10 border-purple-500/20 text-purple-400 shadow-[0_0_15px_rgba(139,92,246,0.1)]'
+                                                : 'bg-white/5 border-white/10 text-slate-500'
+                                        )}>
+                                            {project.status.replace('_', ' ')}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6 relative z-10">
+                                        <div className="flex items-center gap-4">
+                                            <div className="flex -space-x-3">
+                                                {[...Array(Math.min(4, project.lineup_count || 1))].map((_, i) => (
+                                                    <div key={i} className="w-10 h-10 rounded-2xl border-4 border-[#1e2130] bg-black/40 shadow-xl overflow-hidden flex items-center justify-center">
+                                                        <Users size={16} className="text-slate-700" />
+                                                    </div>
+                                                ))}
+                                                {(project.slots_count || 0) > 4 && (
+                                                    <div className="w-10 h-10 rounded-2xl border-4 border-[#1e2130] bg-purple-600 text-xs font-black flex items-center justify-center text-white shadow-xl">
+                                                        +{(project.slots_count || 0) - 4}
+                                                    </div>
+                                                )}
+                                                {(project.slots_count || 0) === 0 && (
+                                                    <div className="w-10 h-10 rounded-2xl border-4 border-dashed border-white/5 flex items-center justify-center text-slate-800">
+                                                        <Plus size={16} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <div className="text-sm font-black text-white">{project.lineup_count || 0}<span className="text-slate-700 mx-1">/</span>{project.slots_count || 0}</div>
+                                                <div className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Team Composition</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                                                <MapPin size={12} className="text-slate-800" />
+                                                {project.location_city || 'Virtual Hub'}
+                                            </div>
+                                            <ChevronRight size={18} className="text-slate-800 group-hover:text-purple-500 group-hover:translate-x-1 transition-all" />
                                         </div>
                                     </div>
                                 </div>
-                            );
-                        })}
-                    </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="py-32 text-center bg-[#1e2130] rounded-[48px] border border-white/5 border-dashed relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <Briefcase className="w-16 h-16 mx-auto mb-8 text-slate-800 relative z-10" />
+                            <h3 className="text-2xl font-black text-white mb-2 relative z-10 tracking-tight">Zero Active Missions</h3>
+                            <p className="text-slate-500 max-w-xs mx-auto mb-10 font-bold uppercase tracking-widest text-[10px] relative z-10">Launch your next production to start staffing.</p>
+                            <Button
+                                onClick={() => router.push('/projects/new')}
+                                className="h-16 px-12 rounded-3xl btn-gradient border-none font-black uppercase tracking-widest text-[10px] gap-3 shadow-lg relative z-10"
+                            >
+                                <Zap size={18} />
+                                Initialize First Project
+                            </Button>
+                        </div>
+                    )}
                 </div>
-            )}
 
-            {/* Empty State */}
-            {projects.length === 0 && (
-                <Card className="p-12 text-center">
-                    <Briefcase className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" />
-                    <h3 className="text-xl font-semibold mb-2">No projects yet</h3>
-                    <p className="text-[var(--text-secondary)] mb-6">
-                        Get started by creating your first project
-                    </p>
-                    <Button onClick={() => router.push('/projects/new')}>
-                        <Plus size={20} />
-                        Create Project
-                    </Button>
-                </Card>
-            )}
+                {/* Tactical Sidebar */}
+                <div className="space-y-12">
+                    {/* Operation Shortcuts */}
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-black text-white px-4 uppercase tracking-tighter">Tactical Gateways</h2>
+                        <div className="space-y-4">
+                            {[
+                                { label: 'Elite Talent Network', icon: Users, path: '/dist/talents', color: 'text-cyan-400', bg: 'bg-cyan-500/10' },
+                                { label: 'Response Protocol', icon: Mail, path: '/dist/requests', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+                            ].map((item, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => router.push(item.path)}
+                                    className="w-full flex items-center gap-5 p-6 rounded-3xl bg-[#1e2130] border border-white/5 hover:border-white/10 hover-lift shadow-xl text-left group transition-all"
+                                >
+                                    <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-inner group-hover:rotate-6", item.bg)}>
+                                        <item.icon size={24} className={cn("transition-colors", item.color)} />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-sm font-black text-white uppercase tracking-tight">{item.label}</div>
+                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-[0.2em] mt-1">Instant Pulse</div>
+                                    </div>
+                                    <ChevronRight size={20} className="text-slate-800 transition-all group-hover:translate-x-1 group-hover:text-white" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Mission Log (Recent Activity) */}
+                    <div className="space-y-6">
+                        <h2 className="text-xl font-black text-white px-4 flex items-center gap-3 uppercase tracking-tighter">
+                            <History size={20} className="text-slate-600" />
+                            Mission Log
+                        </h2>
+                        <div className="bg-[#1e2130] rounded-[32px] border border-white/5 overflow-hidden shadow-2xl">
+                            {requests.length > 0 ? (
+                                <div className="divide-y divide-white/5">
+                                    {requests.slice(0, 5).map((item) => {
+                                        const request = item as any;
+                                        return (
+                                            <div
+                                                key={request.request_id}
+                                                className="p-6 hover:bg-white/[0.02] transition-all cursor-pointer group relative overflow-hidden"
+                                                onClick={() => router.push('/requests')}
+                                            >
+                                                <div className="flex items-start gap-4 relative z-10">
+                                                    <div className={cn(
+                                                        "mt-1.5 h-2 w-2 rounded-full shrink-0 shadow-[0_0_12px_currentColor]",
+                                                        request.status === 'accepted' ? 'text-green-500' :
+                                                            request.status === 'declined' ? 'text-red-500' : 'text-purple-500 animate-pulse'
+                                                    )} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-black text-white truncate group-hover:text-purple-400 transition-colors uppercase tracking-tight">
+                                                            {request.project_title || "Network Broadcast"}
+                                                        </p>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <p className="text-[10px] text-slate-600 uppercase tracking-widest font-black">
+                                                                {request.role_name || request.status}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest shrink-0 mt-1">
+                                                        {new Date(request.sent_at || Date.now()).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="p-12 text-center">
+                                    <Clock className="w-10 h-10 mx-auto mb-4 text-slate-800 opacity-20" />
+                                    <p className="text-[10px] font-black text-slate-700 uppercase tracking-widest leading-relaxed"> No mission logs recorded in recent transmission cycles.</p>
+                                </div>
+                            )}
+                            {requests.length > 0 && (
+                                <Link
+                                    href="/requests"
+                                    className="block py-4 text-center text-[9px] font-black text-slate-600 hover:text-white uppercase tracking-[0.2em] bg-black/20 hover:bg-black/40 transition-all border-t border-white/5"
+                                >
+                                    Access Full Log
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

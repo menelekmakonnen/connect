@@ -4,3 +4,5 @@ export { Avatar } from './Avatar';
 export { RoleBadge, StatusBadge, VerificationBadge, AvailabilityBadge } from './Badge';
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
 export { Input, SearchInput, Select } from './Input';
+export { StatCard } from './StatCard';
+export { ActivityItem } from './ActivityItem';

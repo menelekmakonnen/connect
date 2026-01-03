@@ -5,16 +5,16 @@ import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Select } from '@/components/ui';
 import type { ProjectType, BudgetTier } from '@/lib/types';
 import { api } from '@/lib/api';
-import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers } from 'lucide-react';
 import Link from 'next/link';
 
 const projectTypes = [
-    { value: 'music_video', label: 'Music Video' },
-    { value: 'brand_shoot', label: 'Brand Shoot' },
-    { value: 'short_film', label: 'Short Film' },
-    { value: 'doc', label: 'Documentary' },
-    { value: 'event', label: 'Event' },
-    { value: 'other', label: 'Other' },
+    { value: 'music_video', label: 'Music Video', icon: <Zap size={18} /> },
+    { value: 'brand_shoot', label: 'Brand Shoot', icon: <Target size={18} /> },
+    { value: 'short_film', label: 'Short Film', icon: <Layers size={18} /> },
+    { value: 'doc', label: 'Documentary', icon: <Globe size={18} /> },
+    { value: 'event', label: 'Event', icon: <Sparkles size={18} /> },
+    { value: 'other', label: 'Other', icon: <Plus size={18} /> },
 ];
 
 const budgetTiers = [
@@ -31,44 +31,6 @@ const cityOptions = [
     { value: 'Other', label: 'Other' },
 ];
 
-// Role slot templates by project type
-const roleTemplates: Record<string, { role: string; qty: number }[]> = {
-    music_video: [
-        { role: 'Director of Photography (DP)', qty: 1 },
-        { role: 'Camera Operator', qty: 1 },
-        { role: 'Gaffer', qty: 1 },
-        { role: 'Makeup Artist', qty: 1 },
-        { role: 'Model', qty: 2 },
-        { role: 'BTS Videographer', qty: 1 },
-    ],
-    brand_shoot: [
-        { role: 'Photographer', qty: 1 },
-        { role: 'Model', qty: 2 },
-        { role: 'Makeup Artist', qty: 1 },
-        { role: 'Wardrobe Stylist', qty: 1 },
-    ],
-    short_film: [
-        { role: 'Director of Photography (DP)', qty: 1 },
-        { role: 'Camera Operator', qty: 1 },
-        { role: 'Sound Recordist', qty: 1 },
-        { role: 'Gaffer', qty: 1 },
-        { role: 'Makeup Artist', qty: 1 },
-        { role: 'Editor', qty: 1 },
-        { role: 'Actor', qty: 3 },
-    ],
-    doc: [
-        { role: 'Director of Photography (DP)', qty: 1 },
-        { role: 'Sound Recordist', qty: 1 },
-        { role: 'Editor', qty: 1 },
-    ],
-    event: [
-        { role: 'Photographer', qty: 2 },
-        { role: 'BTS Videographer', qty: 1 },
-        { role: 'Makeup Artist', qty: 2 },
-    ],
-    other: [],
-};
-
 export default function NewProjectPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
@@ -82,7 +44,7 @@ export default function NewProjectPage() {
         brief: '',
         budget_tier: '' as BudgetTier | '',
         client_name: '',
-        visibility: 'public', // Default to public
+        visibility: 'public',
     });
 
     const updateField = (field: string, value: string) => {
@@ -95,11 +57,9 @@ export default function NewProjectPage() {
         try {
             setLoadingCreate(true);
             const res = await api.projects.create(formData);
-            // Redirect to the new project page
             router.push(`/projects/${res.project_id}`);
         } catch (err) {
             console.error('Failed to create project:', err);
-            alert('Failed to create project. Please try again.');
         } finally {
             setLoadingCreate(false);
         }
@@ -113,168 +73,201 @@ export default function NewProjectPage() {
     };
 
     return (
-        <div className="page-container animate-fade-in max-w-2xl mx-auto">
+        <div className="animate-fade-in max-w-3xl mx-auto py-10 px-4">
             {/* Header */}
-            <div className="mb-8">
-                <Link href="/projects" className="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] mb-4">
-                    <ArrowLeft size={16} />
-                    Back to Projects
+            <div className="mb-12 text-center">
+                <Link href="/projects" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-purple-400 mb-8 transition-colors group">
+                    <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                    Back to Explorer
                 </Link>
-                <h1 className="text-2xl font-semibold mb-2">New Project</h1>
-                <p className="text-[var(--text-secondary)]">
-                    Set up your project details, then build your lineup.
+                <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">Initialize Production</h1>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
+                    Phase {step} of 3: {step === 1 ? 'Project Definition' : step === 2 ? 'Logistics & Origin' : 'Financials & Brief'}
                 </p>
             </div>
 
-            {/* Progress Steps */}
-            <div className="flex items-center gap-2 mb-8">
+            {/* Premium Progress Controller */}
+            <div className="flex items-center justify-between mb-12 px-10 relative">
+                <div className="absolute top-1/2 left-10 right-10 h-0.5 bg-white/5 -translate-y-1/2 z-0" />
+                <div
+                    className="absolute top-1/2 left-10 h-0.5 bg-gradient-to-r from-purple-600 to-cyan-500 -translate-y-1/2 z-0 transition-all duration-700"
+                    style={{ width: `${((step - 1) / 2) * (100 - (100 / 3))}%` }}
+                />
+
                 {[1, 2, 3].map((s) => (
-                    <div key={s} className="flex items-center gap-2 flex-1">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${s === step
-                            ? 'bg-[var(--accent-primary)] text-black'
-                            : s < step
-                                ? 'bg-[var(--req-accepted)] text-white'
-                                : 'bg-[var(--bg-elevated)] text-[var(--text-muted)]'
-                            }`}>
+                    <div key={s} className="relative z-10">
+                        <div
+                            className={cn(
+                                "w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-black transition-all duration-500 border-2",
+                                s === step
+                                    ? 'bg-purple-600 border-purple-400 text-white shadow-[0_0_20px_var(--purple-600)] scale-110'
+                                    : s < step
+                                        ? 'bg-cyan-500 border-cyan-400 text-white shadow-[0_0_15px_var(--cyan-500)]'
+                                        : 'bg-[#1a1d29] border-white/10 text-slate-600'
+                            )}
+                        >
                             {s < step ? '✓' : s}
                         </div>
-                        {s < 3 && (
-                            <div className={`flex-1 h-0.5 ${s < step ? 'bg-[var(--req-accepted)]' : 'bg-[var(--bg-elevated)]'}`} />
-                        )}
                     </div>
                 ))}
             </div>
 
             {/* Step 1: Basics */}
             {step === 1 && (
-                <Card className="p-6 animate-fade-in">
-                    <h2 className="text-lg font-medium mb-6">Project Basics</h2>
+                <Card className="p-10 bg-[#1e2130] border-white/5 rounded-[40px] shadow-2xl animate-fade-in relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+                    <h2 className="text-xl font-bold text-white mb-10 flex items-center gap-3">
+                        <Target size={22} className="text-purple-400" />
+                        Production Definition
+                    </h2>
 
-                    <div className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Project Title</label>
+                    <div className="space-y-8">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Project Identifier</label>
                             <Input
-                                placeholder="e.g., Sarkodie Music Video, Brand Campaign Q1"
+                                placeholder="e.g. Sarkodie 'Landmark' Shoot 2024"
                                 value={formData.title}
                                 onChange={(e) => updateField('title', e.target.value)}
+                                className="h-16 bg-black/40 border-white/10 rounded-2xl text-lg font-bold placeholder:text-slate-800"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Project Type</label>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Core Category</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 {projectTypes.map((type) => (
                                     <button
                                         key={type.value}
-                                        onClick={() => updateField('type', type.value)}
-                                        className={`p-4 rounded-lg border text-left transition-all ${formData.type === type.value
-                                            ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)]'
-                                            : 'border-[var(--border-default)] hover:border-[var(--border-hover)]'
-                                            }`}
+                                        onClick={() => updateField('type', type.value as ProjectType)}
+                                        className={cn(
+                                            "flex flex-col items-center justify-center gap-3 p-6 rounded-[28px] border-2 transition-all group",
+                                            formData.type === type.value
+                                                ? 'bg-purple-600/10 border-purple-500 shadow-[0_0_30px_rgba(139,92,246,0.1)]'
+                                                : 'bg-black/20 border-white/5 hover:border-white/10'
+                                        )}
                                     >
-                                        <span className="text-sm font-medium">{type.label}</span>
+                                        <div className={cn(
+                                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                                            formData.type === type.value ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500 group-hover:text-slate-300"
+                                        )}>
+                                            {type.icon}
+                                        </div>
+                                        <span className={cn(
+                                            "text-[10px] font-black uppercase tracking-widest",
+                                            formData.type === type.value ? "text-purple-400" : "text-slate-500"
+                                        )}>{type.label}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Client Name (Optional)</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Client Entity (Optional)</label>
                             <Input
-                                placeholder="e.g., MTN Ghana, Universal Music"
+                                placeholder="e.g. Universal Music Group"
                                 value={formData.client_name}
                                 onChange={(e) => updateField('client_name', e.target.value)}
+                                className="h-16 bg-black/40 border-white/10 rounded-2xl text-lg font-bold placeholder:text-slate-800"
                             />
                         </div>
                     </div>
                 </Card>
             )}
 
-            {/* Step 2: Schedule & Location */}
+            {/* Step 2: Schedule & Logistics */}
             {step === 2 && (
-                <Card className="p-6 animate-fade-in">
-                    <h2 className="text-lg font-medium mb-6">Schedule & Location</h2>
+                <Card className="p-10 bg-[#1e2130] border-white/5 rounded-[40px] shadow-2xl animate-fade-in relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+                    <h2 className="text-xl font-bold text-white mb-10 flex items-center gap-3">
+                        <MapPin size={22} className="text-cyan-400" />
+                        Logistics & timeline
+                    </h2>
 
-                    <div className="space-y-5">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    <Calendar size={14} className="inline mr-1.5" />
-                                    Start Date
-                                </label>
-                                <Input
-                                    type="date"
-                                    value={formData.start_date}
-                                    onChange={(e) => updateField('start_date', e.target.value)}
-                                />
+                    <div className="space-y-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Kick-off Date</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600" size={20} />
+                                    <Input
+                                        type="date"
+                                        value={formData.start_date}
+                                        onChange={(e) => updateField('start_date', e.target.value)}
+                                        className="h-16 pl-14 bg-black/40 border-white/10 rounded-2xl font-bold"
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">
-                                    <Calendar size={14} className="inline mr-1.5" />
-                                    End Date (Optional)
-                                </label>
-                                <Input
-                                    type="date"
-                                    value={formData.end_date}
-                                    onChange={(e) => updateField('end_date', e.target.value)}
-                                />
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Wrap (Optional)</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-600" size={20} />
+                                    <Input
+                                        type="date"
+                                        value={formData.end_date}
+                                        onChange={(e) => updateField('end_date', e.target.value)}
+                                        className="h-16 pl-14 bg-black/40 border-white/10 rounded-2xl font-bold"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2">
-                                <MapPin size={14} className="inline mr-1.5" />
-                                City
-                            </label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Production Hub</label>
                             <Select
-                                options={[{ value: '', label: 'Select city...' }, ...cityOptions]}
+                                options={[{ value: '', label: 'Select region...' }, ...cityOptions]}
                                 value={formData.location_city}
                                 onChange={(e) => updateField('location_city', e.target.value)}
+                                className="h-16 bg-black/40 border-white/10 rounded-2xl font-bold appearance-none px-6"
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2">Location Details (Optional)</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Location Dossier</label>
                             <Input
-                                placeholder="e.g., Studio, outdoor location, multiple locations"
+                                placeholder="e.g. Studio 5, Labadi Beach, Multiple Locations..."
                                 value={formData.location_notes}
                                 onChange={(e) => updateField('location_notes', e.target.value)}
+                                className="h-16 bg-black/40 border-white/10 rounded-2xl font-bold placeholder:text-slate-800"
                             />
                         </div>
                     </div>
                 </Card>
             )}
 
-            {/* Step 3: Budget & Brief */}
+            {/* Step 3: Financials & Brief */}
             {step === 3 && (
-                <Card className="p-6 animate-fade-in">
-                    <h2 className="text-lg font-medium mb-6">Budget & Brief</h2>
+                <Card className="p-10 bg-[#1e2130] border-white/5 rounded-[40px] shadow-2xl animate-fade-in relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+                    <h2 className="text-xl font-bold text-white mb-10 flex items-center gap-3">
+                        <DollarSign size={22} className="text-purple-400" />
+                        Commercial Deck
+                    </h2>
 
-                    <div className="space-y-5">
-                        <div>
-                            <label className="block text-sm font-medium mb-2">
-                                <DollarSign size={14} className="inline mr-1.5" />
-                                Budget Tier
-                            </label>
-                            <div className="space-y-2">
+                    <div className="space-y-10">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Budget Allocation</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 {budgetTiers.map((tier) => (
                                     <button
                                         key={tier.value}
-                                        onClick={() => updateField('budget_tier', tier.value)}
-                                        className={`w-full p-4 rounded-lg border text-left transition-all flex items-center justify-between ${formData.budget_tier === tier.value
-                                            ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)]'
-                                            : 'border-[var(--border-default)] hover:border-[var(--border-hover)]'
-                                            }`}
+                                        onClick={() => updateField('budget_tier', tier.value as BudgetTier)}
+                                        className={cn(
+                                            "p-6 rounded-3xl border-2 text-left transition-all relative overflow-hidden group",
+                                            formData.budget_tier === tier.value
+                                                ? 'bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50 shadow-xl'
+                                                : 'bg-black/20 border-white/5 hover:border-white/10'
+                                        )}
                                     >
-                                        <div>
-                                            <span className="text-sm font-medium block">{tier.label}</span>
-                                            <span className="text-xs text-[var(--text-muted)]">{tier.description}</span>
+                                        <div className="relative z-10">
+                                            <span className={cn(
+                                                "text-[10px] font-black uppercase tracking-widest mb-1 block",
+                                                formData.budget_tier === tier.value ? "text-purple-400" : "text-slate-500"
+                                            )}>{tier.label}</span>
+                                            <span className="text-xs text-slate-600 font-medium leading-tight block">{tier.description}</span>
                                         </div>
                                         {formData.budget_tier === tier.value && (
-                                            <div className="w-5 h-5 rounded-full bg-[var(--accent-primary)] flex items-center justify-center">
-                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3">
-                                                    <polyline points="20 6 9 17 4 12" />
-                                                </svg>
+                                            <div className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-purple-500 flex items-center justify-center shadow-lg">
+                                                <Check size={14} className="text-white" />
                                             </div>
                                         )}
                                     </button>
@@ -282,93 +275,104 @@ export default function NewProjectPage() {
                             </div>
                         </div>
 
-                        <textarea
-                            className="input min-h-[120px] resize-none"
-                            placeholder="Describe the project, vision, references, and any special requirements..."
-                            value={formData.brief}
-                            onChange={(e) => updateField('brief', e.target.value)}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-2">
-                            <Globe size={14} className="inline mr-1.5" />
-                            Project Visibility
-                        </label>
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
-                                onClick={() => updateField('visibility', 'public')}
-                                className={`p-4 rounded-lg border text-left transition-all ${formData.visibility === 'public'
-                                    ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)]'
-                                    : 'border-[var(--border-default)] hover:border-[var(--border-hover)]'
-                                    }`}
-                            >
-                                <span className="text-sm font-medium flex items-center mb-1">
-                                    <Globe size={16} className="mr-2" />
-                                    Public (Open)
-                                </span>
-                                <span className="text-xs text-[var(--text-muted)]">
-                                    Anyone can see and apply. Best for finding new talent.
-                                </span>
-                            </button>
-
-                            <button
-                                onClick={() => updateField('visibility', 'private')}
-                                className={`p-4 rounded-lg border text-left transition-all ${formData.visibility === 'private'
-                                    ? 'border-[var(--accent-primary)] bg-[var(--accent-glow)]'
-                                    : 'border-[var(--border-default)] hover:border-[var(--border-hover)]'
-                                    }`}
-                            >
-                                <span className="text-sm font-medium flex items-center mb-1">
-                                    <Lock size={16} className="mr-2" />
-                                    Private (Invite Only)
-                                </span>
-                                <span className="text-xs text-[var(--text-muted)]">
-                                    Only people you invite can see this project.
-                                </span>
-                            </button>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Creative Brief</label>
+                            <textarea
+                                className="w-full min-h-[160px] bg-black/40 border border-white/10 rounded-3xl p-6 text-white text-lg font-medium outline-none focus:border-purple-500 transition-all resize-none shadow-inner placeholder:text-slate-800"
+                                placeholder="Elaborate on the vision, set requirements, and aesthetic direction..."
+                                value={formData.brief}
+                                onChange={(e) => updateField('brief', e.target.value)}
+                            />
                         </div>
-                    </div>
 
-                    {/* Role Template Preview */}
-                    {formData.type && roleTemplates[formData.type]?.length > 0 && (
-                        <div className="p-4 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)]">
-                            <p className="text-sm font-medium mb-2">Suggested Roles</p>
-                            <p className="text-xs text-[var(--text-muted)] mb-3">
-                                Based on your project type, we&apos;ll pre-fill these role slots:
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                                {roleTemplates[formData.type].map((slot, i) => (
-                                    <span key={i} className="px-2 py-1 rounded bg-[var(--bg-glass)] text-xs">
-                                        {slot.qty}x {slot.role}
-                                    </span>
-                                ))}
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Engine Visibility</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <button
+                                    onClick={() => updateField('visibility', 'public')}
+                                    className={cn(
+                                        "p-6 rounded-3xl border-2 text-left transition-all group",
+                                        formData.visibility === 'public'
+                                            ? 'bg-purple-600/10 border-purple-500'
+                                            : 'bg-black/20 border-white/5'
+                                    )}
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className={cn(
+                                            "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
+                                            formData.visibility === 'public' ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500"
+                                        )}>
+                                            <Globe size={18} />
+                                        </div>
+                                        <span className={cn(
+                                            "text-xs font-black uppercase tracking-widest",
+                                            formData.visibility === 'public' ? "text-white" : "text-slate-500"
+                                        )}>Public Network</span>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed">Broadcast to the marketplace for applicants.</p>
+                                </button>
+
+                                <button
+                                    onClick={() => updateField('visibility', 'private')}
+                                    className={cn(
+                                        "p-6 rounded-3xl border-2 text-left transition-all group",
+                                        formData.visibility === 'private'
+                                            ? 'bg-purple-600/10 border-purple-500'
+                                            : 'bg-black/20 border-white/5'
+                                    )}
+                                >
+                                    <div className="flex items-center gap-3 mb-3">
+                                        <div className={cn(
+                                            "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
+                                            formData.visibility === 'private' ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500"
+                                        )}>
+                                            <Lock size={18} />
+                                        </div>
+                                        <span className={cn(
+                                            "text-xs font-black uppercase tracking-widest",
+                                            formData.visibility === 'private' ? "text-white" : "text-slate-500"
+                                        )}>Private Channel</span>
+                                    </div>
+                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed">Elite invites only. Hidden from the public roster.</p>
+                                </button>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </Card>
             )}
 
-            {/* Navigation */}
-            <div className="flex items-center justify-between mt-6">
+            {/* Navigation Controller */}
+            <div className="flex items-center justify-between mt-12 px-2">
                 {step > 1 ? (
-                    <Button variant="secondary" onClick={() => setStep(step - 1)}>
-                        <ArrowLeft size={16} />
-                        Back
+                    <Button
+                        variant="secondary"
+                        onClick={() => setStep(step - 1)}
+                        className="h-16 px-10 rounded-3xl bg-white/5 border border-white/10 text-white hover:bg-white/10 font-black uppercase tracking-widest text-[10px] gap-3"
+                    >
+                        <ArrowLeft size={18} />
+                        Stage Back
                     </Button>
                 ) : (
                     <div />
                 )}
 
                 {step < 3 ? (
-                    <Button onClick={() => setStep(step + 1)} disabled={!canProceed()}>
-                        Next
-                        <ArrowRight size={16} />
+                    <Button
+                        onClick={() => setStep(step + 1)}
+                        disabled={!canProceed()}
+                        className="h-16 px-12 rounded-3xl btn-gradient border-none font-black uppercase tracking-widest text-[10px] gap-3 shadow-lg shadow-purple-900/20"
+                    >
+                        Advance Phase
+                        <ArrowRight size={18} />
                     </Button>
                 ) : (
-                    <Button onClick={handleSubmit} disabled={!canProceed() || loading_create}>
-                        {loading_create ? <Loader2 className="animate-spin" /> : 'Create Project'}
-                        <ArrowRight size={16} />
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={!canProceed() || loading_create}
+                        className="h-16 px-12 rounded-3xl btn-gradient border-none font-black uppercase tracking-widest text-[10px] gap-3 shadow-[0_0_30px_rgba(139,92,246,0.5)]"
+                    >
+                        {loading_create ? <Loader2 className="animate-spin" size={18} /> : <Zap size={18} />}
+                        Engine Start
                     </Button>
                 )}
             </div>

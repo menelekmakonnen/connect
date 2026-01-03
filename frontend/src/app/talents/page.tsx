@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Filter, LayoutGrid, List as ListIcon, Loader2 } from 'lucide-react';
+import { Search, Filter, LayoutGrid, List as ListIcon, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import { TalentCard, TalentCardSkeleton } from '@/components/talent/TalentCard';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { Talent } from '@/lib/types';
-
-import { TalentHero } from '@/components/talents/TalentHero';
 
 export default function RosterPage() {
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -48,7 +46,6 @@ export default function RosterPage() {
             }
         };
 
-        // Debounce search
         const timer = setTimeout(() => {
             fetchTalents();
         }, 500);
@@ -57,26 +54,28 @@ export default function RosterPage() {
     }, [searchQuery, selectedRole, selectedCity, selectedAvailability, verifiedOnly]);
 
     return (
-        <div className="space-y-6">
-
-
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8 animate-fade-in py-6">
+            {/* Header Area */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Talents</h1>
-                    <p className="text-zinc-400 mt-1">
-                        {loading ? 'Searching talent...' : `${talents.length} talent available`}
+                    <div className="flex items-center gap-2 mb-2 text-purple-400 font-bold uppercase tracking-widest text-[10px]">
+                        <LayoutGrid size={12} />
+                        Professional Roster
+                    </div>
+                    <h1 className="text-4xl font-bold text-white tracking-tight">Meet the Talent</h1>
+                    <p className="text-slate-400 mt-2">
+                        {loading ? 'Scanning the network...' : `${talents.length} verified creative professionals found`}
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <div className="flex bg-zinc-900 rounded-lg p-1 border border-zinc-800">
+                <div className="flex items-center gap-3">
+                    <div className="flex bg-white/5 rounded-xl p-1 border border-white/10">
                         <button
                             onClick={() => setViewMode('grid')}
                             aria-label="Grid view"
                             className={cn(
-                                "p-2 rounded-md transition-colors",
-                                viewMode === 'grid' ? "bg-zinc-800 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
+                                "p-2.5 rounded-lg transition-all",
+                                viewMode === 'grid' ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
                             )}
                         >
                             <LayoutGrid size={18} />
@@ -85,72 +84,81 @@ export default function RosterPage() {
                             onClick={() => setViewMode('list')}
                             aria-label="List view"
                             className={cn(
-                                "p-2 rounded-md transition-colors",
-                                viewMode === 'list' ? "bg-zinc-800 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300"
+                                "p-2.5 rounded-lg transition-all",
+                                viewMode === 'list' ? "bg-purple-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
                             )}
                         >
                             <ListIcon size={18} />
                         </button>
                     </div>
+
+                    <Button variant="secondary" className="gap-2 bg-white/5 border-white/10 text-white hover:bg-white/10">
+                        <ArrowUpDown size={16} />
+                        Sort
+                    </Button>
                 </div>
             </div>
 
-            {/* Search & Filters Bar */}
-            <div className="flex flex-col gap-4 bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/50 backdrop-blur-sm">
-                <div className="flex flex-col md:flex-row gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            {/* Premium Filter Controls */}
+            <div className="bg-[#1e2130] p-6 rounded-[24px] border border-white/5 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+
+                <div className="flex flex-col md:flex-row gap-6">
+                    <div className="relative flex-1 group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-purple-400 transition-colors" size={20} />
                         <input
                             type="text"
-                            placeholder="Search by name, role, or skill..."
+                            placeholder="Search by name, role, or specific skill..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all placeholder:text-zinc-600"
+                            className="w-full bg-black/40 border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500/30 transition-all placeholder:text-slate-600 shadow-inner"
                         />
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         <Button
                             variant="secondary"
-                            className={cn("gap-2", showFilters && "border-amber-500/50 text-amber-500 bg-amber-500/10")}
+                            className={cn(
+                                "gap-2 px-6 py-4 h-auto rounded-2xl transition-all border border-white/10",
+                                showFilters ? "bg-purple-600 text-white border-purple-500" : "bg-white/5 text-slate-300 hover:bg-white/10"
+                            )}
                             onClick={() => setShowFilters(!showFilters)}
                         >
-                            <Filter size={16} />
-                            Filters
+                            <SlidersHorizontal size={18} />
+                            Detailed Filters
                         </Button>
 
                         <div
                             className={cn(
-                                "flex items-center gap-2 px-3 py-2.5 rounded-lg border cursor-pointer select-none transition-colors",
+                                "flex items-center gap-3 px-6 py-4 rounded-2xl border cursor-pointer select-none transition-all shadow-sm h-full",
                                 verifiedOnly
-                                    ? "bg-amber-500/10 border-amber-500/50 text-amber-500"
-                                    : "bg-zinc-950 border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
+                                    : "bg-white/5 border-white/10 text-slate-400 hover:border-white/20"
                             )}
                             onClick={() => setVerifiedOnly(!verifiedOnly)}
                         >
                             <div className={cn(
-                                "w-4 h-4 rounded border flex items-center justify-center transition-colors",
-                                verifiedOnly ? "bg-amber-500 border-amber-500" : "border-zinc-600"
+                                "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
+                                verifiedOnly ? "bg-purple-500 border-purple-500 shadow-[0_0_8px_var(--purple-500)]" : "border-slate-600"
                             )}>
-                                {verifiedOnly && <div className="w-2 h-2 bg-black rounded-sm" />}
+                                {verifiedOnly && <div className="w-2 h-2 bg-white rounded-sm" />}
                             </div>
-                            <span className="text-sm font-medium">Verified Only</span>
+                            <span className="text-sm font-bold">Verified Only</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Expanded Filters */}
+                {/* Glassmorphic Expanded Filters */}
                 {showFilters && (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2 pt-4 border-t border-zinc-800/50 animate-in slide-in-from-top-2">
-                        <div>
-                            <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">Role</label>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-white/5 animate-scale-in">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Category / Role</label>
                             <select
                                 value={selectedRole}
                                 onChange={(e) => setSelectedRole(e.target.value)}
-                                aria-label="Filter by role"
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                             >
-                                <option value="">All Roles</option>
+                                <option value="">All Categories</option>
                                 <option value="Director">Director</option>
                                 <option value="Producer">Producer</option>
                                 <option value="Cinematographer">Cinematographer (DP)</option>
@@ -161,95 +169,100 @@ export default function RosterPage() {
                             </select>
                         </div>
 
-                        <div>
-                            <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">City</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Location</label>
                             <select
                                 value={selectedCity}
                                 onChange={(e) => setSelectedCity(e.target.value)}
-                                aria-label="Filter by city"
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                             >
-                                <option value="">All Cities</option>
-                                <option value="Accra">Accra</option>
-                                <option value="Kumasi">Kumasi</option>
-                                <option value="Tema">Tema</option>
-                                <option value="Takoradi">Takoradi</option>
+                                <option value="">All Regions</option>
+                                <option value="Accra">Accra Central</option>
+                                <option value="Kumasi">Kumasi / Ashanti</option>
+                                <option value="Tema">Tema / Greater Accra</option>
+                                <option value="Takoradi">Western Region</option>
                             </select>
                         </div>
 
-                        <div>
-                            <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">Availability</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Current Availability</label>
                             <select
                                 value={selectedAvailability}
                                 onChange={(e) => setSelectedAvailability(e.target.value)}
-                                aria-label="Filter by availability"
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                             >
-                                <option value="">Any Status</option>
-                                <option value="available">Available</option>
-                                <option value="limited">Limited Avail</option>
-                                <option value="unavailable">Unavailable</option>
+                                <option value="">Any Availability</option>
+                                <option value="available">Immediate (Available)</option>
+                                <option value="limited">Contact for Info (Limited)</option>
+                                <option value="unavailable">Booked Solid</option>
                             </select>
                         </div>
 
-                        <div>
-                            <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">Budget Tier</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-1">Production Budget Tier</label>
                             <select
-                                aria-label="Filter by budget"
-                                className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30"
                             >
-                                <option value="">Any Budget</option>
-                                <option value="$">$ (Student/Indie)</option>
-                                <option value="$$">$$ (Standard)</option>
-                                <option value="$$$">$$$ (Premium)</option>
+                                <option value="">All Budget Levels</option>
+                                <option value="$">$ Indie / Commercial</option>
+                                <option value="$$">$$ Professional Suite</option>
+                                <option value="$$$">$$$ Premium Production</option>
                             </select>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Roster Grid */}
-            {loading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                        <TalentCardSkeleton key={i} />
-                    ))}
-                </div>
-            ) : error ? (
-                <div className="text-center py-20 bg-zinc-900/30 rounded-xl border border-zinc-800 border-dashed">
-                    <div className="text-red-400 mb-2">Error loading roster</div>
-                    <p className="text-zinc-500 text-sm mb-4">{error}</p>
-                    <Button variant="secondary" onClick={() => window.location.reload()}>Retry</Button>
-                </div>
-            ) : talents.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {talents.map((talent) => (
-                        <TalentCard key={talent.talent_id} talent={{ ...talent, roles: talent.roles || [] }} />
-                    ))}
-                </div>
-            ) : (
-                <div className="text-center py-20 bg-zinc-900/30 rounded-xl border border-zinc-800 border-dashed">
-                    <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-800">
-                        <Search className="text-zinc-600" size={24} />
+            {/* Results Display */}
+            <div className="pt-4">
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                            <TalentCardSkeleton key={i} />
+                        ))}
                     </div>
-                    <h3 className="text-lg font-medium text-white mb-1">No talent found</h3>
-                    <p className="text-zinc-500 max-w-sm mx-auto mb-6">
-                        We couldn't find any talent matching your search filters. Try adjusting your criteria.
-                    </p>
-                    <Button
-                        variant="secondary"
-                        onClick={() => {
-                            setSearchQuery('');
-                            setSelectedRole('');
-                            setSelectedCity('');
-                            setSelectedAvailability('');
-                            setVerifiedOnly(false);
-                        }}
-                    >
-                        Clear Filters
-                    </Button>
-                </div>
-            )}
+                ) : error ? (
+                    <div className="text-center py-32 bg-[#1a1d29] rounded-[32px] border border-white/5">
+                        <div className="text-red-400 mb-4 inline-flex p-4 rounded-full bg-red-500/10">
+                            <Filter size={32} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">Error connecting to network</h3>
+                        <p className="text-slate-500 max-w-xs mx-auto mb-8">{error}</p>
+                        <Button variant="secondary" onClick={() => window.location.reload()} className="bg-white/5 border-white/10 text-white">
+                            Reconnect Now
+                        </Button>
+                    </div>
+                ) : talents.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {talents.map((talent) => (
+                            <TalentCard key={talent.talent_id} talent={{ ...talent, roles: talent.roles || [] }} />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-32 bg-[#1a1d29] rounded-[32px] border border-white/5">
+                        <div className="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-white/10">
+                            <Search className="text-slate-600" size={32} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-2">No talent found</h3>
+                        <p className="text-slate-500 max-w-sm mx-auto mb-8">
+                            We couldn't find any professionals matching those criteria. Try expanding your search or clearing filters.
+                        </p>
+                        <Button
+                            variant="secondary"
+                            className="btn-gradient border-none px-8 py-3 h-auto rounded-xl"
+                            onClick={() => {
+                                setSearchQuery('');
+                                setSelectedRole('');
+                                setSelectedCity('');
+                                setSelectedAvailability('');
+                                setVerifiedOnly(false);
+                            }}
+                        >
+                            Reset All Filters
+                        </Button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

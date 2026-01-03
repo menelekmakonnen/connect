@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth, useAuthStore } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 import {
     Users,
     LayoutDashboard,
@@ -57,7 +58,7 @@ export function Sidebar() {
 
     // Filter navigation based on auth
     const filteredNav = navigation.filter(item => isAuthenticated || item.public);
-    const filteredAdminNav = adminNavigation.filter(item => isAuthenticated);
+    const filteredAdminNav = adminNavigation.filter(() => isAuthenticated);
 
     return (
         <aside
@@ -69,13 +70,16 @@ export function Sidebar() {
             {/* Header / Logo */}
             <div className={cn("flex items-center border-b border-[var(--border-subtle)] transition-all", isCollapsed ? "p-3 justify-center" : "p-5 justify-between")}>
                 <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden">
-                    <img
-                        src="/favicon-active.png"
-                        alt="Logo"
-                        className="w-8 h-8 min-w-[32px] rounded-lg object-cover"
-                    />
+                    <div className="relative w-8 h-8 min-w-[32px]">
+                        <Image
+                            src="/favicon-active.png"
+                            alt="Logo"
+                            fill
+                            className="rounded-lg object-cover"
+                        />
+                    </div>
                     {!isCollapsed && (
-                        <span className="font-bold text-lg tracking-tight whitespace-nowrap opacity-100 transition-opacity duration-300 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-secondary)] bg-clip-text text-transparent">
+                        <span className="font-bold text-lg tracking-tight whitespace-nowrap opacity-100 transition-opacity duration-300 gradient-text">
                             ICUNI Connect
                         </span>
                     )}
@@ -124,18 +128,24 @@ export function Sidebar() {
                             className={cn(
                                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
                                 isActive
-                                    ? 'bg-[var(--accent-glow)] text-[var(--accent-primary)]'
-                                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]',
+                                    ? 'bg-purple-500/20 text-white border border-purple-500/30 shadow-[0_0_15px_rgba(139,92,246,0.15)]'
+                                    : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/5',
                                 isCollapsed && 'justify-center px-0 py-3'
                             )}
                         >
-                            <item.icon size={20} className={cn("flex-shrink-0", isActive && "text-[var(--accent-primary)]")} />
+                            <item.icon
+                                size={20}
+                                className={cn(
+                                    "flex-shrink-0 transition-colors",
+                                    isActive ? "text-purple-400" : "group-hover:text-white"
+                                )}
+                            />
 
                             {!isCollapsed && (
                                 <>
                                     <span className="truncate">{item.name}</span>
                                     {isActive && (
-                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[var(--accent-primary)]" />
+                                        <div className="ml-auto w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_var(--purple-500)]" />
                                     )}
                                 </>
                             )}
@@ -163,12 +173,18 @@ export function Sidebar() {
                                         className={cn(
                                             'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group',
                                             isActive
-                                                ? 'bg-[var(--accent-glow)] text-[var(--accent-primary)]'
-                                                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]',
+                                                ? 'bg-purple-500/20 text-white border border-purple-500/30 shadow-[0_0_15px_rgba(139,92,246,0.15)]'
+                                                : 'text-[var(--text-secondary)] hover:text-white hover:bg-white/5',
                                             isCollapsed && 'justify-center px-0 py-3'
                                         )}
                                     >
-                                        <item.icon size={20} className="flex-shrink-0" />
+                                        <item.icon
+                                            size={20}
+                                            className={cn(
+                                                "flex-shrink-0 transition-colors",
+                                                isActive ? "text-purple-400" : "group-hover:text-white"
+                                            )}
+                                        />
                                         {!isCollapsed && <span>{item.name}</span>}
                                     </Link>
                                 );

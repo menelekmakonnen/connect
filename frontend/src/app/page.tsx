@@ -1,20 +1,19 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Button, Card } from '@/components/ui';
+import { Button } from '@/components/ui';
 import {
-  Users,
-  FolderKanban,
-  Zap,
   ArrowRight,
-  Shield,
   Sparkles,
-  CheckCircle2
+  Zap,
+  PlayCircle
 } from 'lucide-react';
 import Link from 'next/link';
-import { TalentHero } from '@/components/talents/TalentHero';
 import { useAuth } from '@/lib/auth';
-import { cn } from '@/lib/utils';
+import { PlatformStats } from '@/components/landing/PlatformStats';
+import { FeaturedTalents } from '@/components/landing/FeaturedTalents';
+import { ActivityFeed } from '@/components/landing/ActivityFeed';
+import { HowItWorks } from '@/components/landing/HowItWorks';
 
 // Main CTA Component
 function MainCTA({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isLoading: boolean }) {
@@ -26,11 +25,11 @@ function MainCTA({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isL
     return (
       <Button
         size="lg"
-        className="bg-[var(--accent-primary)] text-black hover:opacity-90 shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all transform hover:scale-105"
+        className="btn-gradient px-8 py-6 rounded-2xl text-lg group"
         onClick={() => router.push('/dashboard')}
       >
-        Go to Dashboard
-        <ArrowRight size={18} className="ml-2" />
+        Enter Command Center
+        <ArrowRight size={20} className="ml-2 transition-transform group-hover:translate-x-1" />
       </Button>
     );
   }
@@ -40,19 +39,19 @@ function MainCTA({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isL
       <Link href="/login">
         <Button
           size="lg"
-          className="w-full sm:w-auto bg-[var(--accent-primary)] text-black hover:opacity-90 shadow-[0_0_20px_rgba(255,215,0,0.3)] transition-all transform hover:scale-105"
+          className="btn-gradient w-full sm:w-auto px-8 py-6 rounded-2xl text-lg group"
         >
-          Get Started
-          <ArrowRight size={18} className="ml-2" />
+          Start Staffing Now
+          <ArrowRight size={20} className="ml-2 transition-transform group-hover:translate-x-1" />
         </Button>
       </Link>
       <Link href="/talents">
         <Button
           size="lg"
-          variant="secondary"
-          className="w-full sm:w-auto border-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-white"
+          className="w-full sm:w-auto px-8 py-6 rounded-2xl text-lg bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all flex items-center justify-center gap-2"
         >
-          Browse Talent
+          <PlayCircle size={20} className="text-purple-400" />
+          Explore Talent
         </Button>
       </Link>
     </div>
@@ -61,230 +60,151 @@ function MainCTA({ isAuthenticated, isLoading }: { isAuthenticated: boolean; isL
 
 export default function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
-  // MainCTA is now external
-
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="w-full">
-        <TalentHero />
-      </div>
+    <div className="min-h-screen bg-[#0f1117] text-white">
       {/* Hero Section */}
-      <section className="relative pt-12 pb-20 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[var(--accent-primary)]/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute top-40 right-0 w-[400px] h-[400px] bg-[var(--role-camera)]/10 blur-[80px] rounded-full pointer-events-none" />
+      <section className="relative pt-24 pb-32 overflow-hidden border-b border-white/5">
+        {/* Animated Background Gradients */}
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-purple-600/10 blur-[150px] rounded-full -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-cyan-600/5 blur-[120px] rounded-full translate-y-1/2 -translate-x-1/4 pointer-events-none" />
 
         <div className="container mx-auto px-4 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-subtle)] mb-8 animate-fade-in-up">
-            <Sparkles size={14} className="text-[var(--accent-primary)]" />
-            <span className="text-xs font-medium text-[var(--text-secondary)]">The Future of Ghana Production</span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8 animate-slide-in-up">
+            <div className="h-2 w-2 rounded-full bg-purple-500 shadow-[0_0_8px_var(--purple-500)] animate-pulse" />
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+              Ghana's Premier Production Network
+            </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight animate-fade-in-up delay-100">
-            Staff Your Next Shoot <br />
-            <span className="text-[var(--accent-primary)]">In Seconds.</span>
+          <h1 className="text-5xl md:text-8xl font-bold mb-8 tracking-tight leading-[1.1] animate-slide-in-up">
+            Staff Your Next <br />
+            <span className="gradient-text">Elite Shoot</span> In Minutes.
           </h1>
 
-          <p className="text-lg md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-10 animate-fade-in-up delay-200">
-            ICUNI Connect bridges the gap between top-tier production managers and
-            Ghana&apos;s most reliable creative talent. Verified, professional, and ready to work.
+          <p className="text-lg md:text-2xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-slide-in-up">
+            Connect with verified DPs, Editors, and Gaffers across Ghana.
+            Automated availability checks, professional vetting, and seamless management.
           </p>
 
-          <div className="flex justify-center animate-fade-in-up delay-300">
+          <div className="flex justify-center animate-slide-in-up">
             <MainCTA isAuthenticated={isAuthenticated} isLoading={isLoading} />
           </div>
 
-          {/* Social Proof */}
-          <div className="mt-16 pt-8 border-t border-[var(--border-subtle)]/30 animate-fade-in-up delay-500">
-            <p className="text-xs text-[var(--text-muted)] uppercase tracking-widest mb-6">Trusted by production teams at</p>
-            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              {/* Placeholders for logos - simplified text for now */}
-              <span className="text-xl font-bold">ORBIT</span>
-              <span className="text-xl font-bold">FARMHOUSE</span>
-              <span className="text-xl font-bold">X AGENCY</span>
-              <span className="text-xl font-bold">SOLID MULTIMEDIA</span>
-            </div>
+          {/* Platform Stats Integration */}
+          <div className="mt-24">
+            <PlatformStats />
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-16 bg-[var(--bg-elevated)]/30">
+      {/* Featured Talent Section - Primary Engagement for Non-Logged-In Users */}
+      <FeaturedTalents />
+
+      {/* How It Works - Clarity & Trust */}
+      <HowItWorks />
+
+      {/* Activity Feed - Community Life */}
+      <ActivityFeed />
+
+      {/* Trust & Reliability Section */}
+      <section className="py-24 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-500/5 to-transparent pointer-events-none" />
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="p-8 hover:border-[var(--accent-primary)]/50 transition-colors group">
-              <div className="w-12 h-12 rounded-lg bg-[var(--role-camera)]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Users size={24} className="text-[var(--role-camera)]" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Verified Roster</h3>
-              <p className="text-[var(--text-muted)] leading-relaxed">
-                Access a curated database of DPs, Gaffers, Editors, and more.
-                Every talent is vetted for reliability and skill level.
-              </p>
-            </Card>
+          <div className="bg-[#1e2130]/40 backdrop-blur-xl border border-white/5 rounded-[40px] p-8 md:p-16 relative overflow-hidden">
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 w-96 h-96 bg-purple-500/20 blur-[120px] rounded-full pointer-events-none" />
 
-            <Card className="p-8 hover:border-[var(--accent-primary)]/50 transition-colors group">
-              <div className="w-12 h-12 rounded-lg bg-[var(--role-hairmakeup)]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <FolderKanban size={24} className="text-[var(--role-hairmakeup)]" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Project Management</h3>
-              <p className="text-[var(--text-muted)] leading-relaxed">
-                Organize your crew into slots, track bookings, and manage budgets
-                all in one intuitive dashboard.
-              </p>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h2 className="text-3xl md:text-5xl font-bold mb-8 leading-tight text-white">
+                  Built for the <br />
+                  Modern <span className="text-purple-400">Production</span>
+                </h2>
 
-            <Card className="p-8 hover:border-[var(--accent-primary)]/50 transition-colors group">
-              <div className="w-12 h-12 rounded-lg bg-[var(--accent-primary)]/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Zap size={24} className="text-[var(--accent-primary)]" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Instant Booking</h3>
-              <p className="text-[var(--text-muted)] leading-relaxed">
-                Send availability checks and booking requests directly to talent.
-                Get responses faster than ever before.
-              </p>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Value Props / Split Section */}
-      <section className="py-24">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <h2 className="text-3xl md:text-4xl font-bold">Why Production Managers Choose ICUNI</h2>
-
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="mt-1">
-                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <CheckCircle2 size={14} className="text-green-500" />
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg">No More Phone Tag</h4>
-                    <p className="text-[var(--text-secondary)]">Stop calling 20 people just to find one Gaffer available on Tuesday. Send bulk availability checks in one click.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="mt-1">
-                    <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <Shield size={14} className="text-blue-500" />
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg">Verified Reliability</h4>
-                    <p className="text-[var(--text-secondary)]">We track attendance and professionalism. Bad actors get removed, so you always get the best crew.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="mt-1">
-                    <div className="w-6 h-6 rounded-full bg-[var(--accent-primary)]/20 flex items-center justify-center">
-                      <Zap size={14} className="text-[var(--accent-primary)]" />
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg">Seamless Payments</h4>
-                    <p className="text-[var(--text-secondary)]">Standardized rates and clear deliverables mean no arguments about overtime or day rates.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative group">
-              {/* Animated Background Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-tr from-[var(--accent-primary)]/30 via-[var(--role-lighting)]/20 to-[var(--role-camera)]/30 blur-3xl rounded-[3rem] opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
-
-              <Card className="relative p-0 overflow-hidden border-[var(--accent-primary)]/20 bg-black/40 backdrop-blur-3xl shadow-2xl rounded-2xl">
-                {/* Mock Browser Header */}
-                <div className="bg-white/5 px-4 py-3 border-b border-white/10 flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40" />
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-500/40" />
-                  </div>
-                  <div className="bg-white/5 px-3 py-1 rounded-md text-[10px] text-white/30 font-mono">
-                    connect.icuni.org/projects/crew-mv-01
-                  </div>
-                  <div className="w-10" />
-                </div>
-
-                <div className="p-6 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-bold text-white tracking-wide uppercase">Casting: Music Video</h3>
-                      <p className="text-[10px] text-[var(--accent-primary)] font-mono mt-0.5">EST. BUDGET: $12,500</p>
-                    </div>
-                    <div className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-bold text-green-400">
-                      75% STAFFED
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {/* Role Slots Mock */}
-                    {[
-                      { role: 'Director of Photography', name: 'Kojo Anim', status: 'Booked', color: 'blue' },
-                      { role: 'Gaffer', name: 'Ama Serwah', status: 'Booked', color: 'yellow' },
-                      { role: 'Art Director', name: 'Pending Selection', status: 'Staffing', color: 'gray' }
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-9 h-9 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white/60`}>
-                            {item.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="text-[11px] font-bold text-white/90">{item.role}</div>
-                            <div className="text-[10px] text-white/40">{item.name}</div>
-                          </div>
-                        </div>
-                        <div className={cn(
-                          "px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider",
-                          item.status === 'Booked' ? "bg-blue-500/20 text-blue-400" : "bg-white/10 text-white/40"
-                        )}>
-                          {item.status}
-                        </div>
+                <div className="space-y-8">
+                  {[
+                    {
+                      icon: Zap,
+                      title: "Real-time Staffing",
+                      description: "Send 50 availability checks with one click. No more spreadsheets or manual calling."
+                    },
+                    {
+                      icon: Sparkles,
+                      title: "Vetted Excellence",
+                      description: "Access our exclusive database of professionals with verified portfolios and performance history."
+                    }
+                  ].map((item, i) => (
+                    <div key={i} className="flex gap-6">
+                      <div className="h-12 w-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0 text-purple-400">
+                        <item.icon size={24} />
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Summary Bar */}
-                  <div className="pt-4 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex -space-x-2">
-                      {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="w-6 h-6 rounded-full border-2 border-black bg-gray-800" />
-                      ))}
-                      <div className="w-6 h-6 rounded-full border-2 border-black bg-[var(--accent-primary)] text-black text-[8px] font-bold flex items-center justify-center">+12</div>
+                      <div>
+                        <h4 className="text-xl font-bold text-white mb-2">{item.title}</h4>
+                        <p className="text-slate-400 leading-relaxed">{item.description}</p>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+                <div className="relative bg-[#0f1117] rounded-3xl border border-white/10 overflow-hidden shadow-2xl transition-all">
+                  <div className="bg-white/5 px-6 py-4 border-b border-white/5 flex items-center justify-between">
                     <div className="flex gap-2">
-                      <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full w-[70%] bg-[var(--accent-primary)] shadow-[0_0_10px_rgba(var(--accent-primary-rgb),0.5)]" />
-                      </div>
+                      <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                      <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                      <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                    </div>
+                    <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                      Project: Ghana Chronicles
+                    </div>
+                    <div className="w-8" />
+                  </div>
+                  <div className="p-8 space-y-4">
+                    <div className="h-12 w-full bg-white/5 rounded-2xl flex items-center px-4 gap-4">
+                      <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-[10px] font-bold text-purple-400">DP</div>
+                      <div className="h-2 w-32 bg-white/10 rounded-full" />
+                      <div className="ml-auto px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-[8px] font-bold text-green-400 uppercase">Confirmed</div>
+                    </div>
+                    <div className="h-12 w-full bg-white/5 rounded-2xl flex items-center px-4 gap-4 animate-pulse">
+                      <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-[10px] font-bold text-cyan-400">ED</div>
+                      <div className="h-2 w-48 bg-white/10 rounded-full" />
+                      <div className="ml-auto px-3 py-1 bg-purple-500/10 border border-purple-500/20 rounded-full text-[8px] font-bold text-purple-400 uppercase">Pending</div>
+                    </div>
+                    <div className="h-12 w-full bg-white/5 rounded-2xl flex items-center px-4 gap-4">
+                      <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-[10px] font-bold text-pink-400">GA</div>
+                      <div className="h-2 w-24 bg-white/10 rounded-full" />
+                      <div className="ml-auto px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-[8px] font-bold text-green-400 uppercase">Confirmed</div>
                     </div>
                   </div>
                 </div>
-              </Card>
-
-              {/* Floating Accents */}
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[var(--accent-primary)]/20 blur-3xl pointer-events-none" />
-              <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-500/10 blur-[80px] pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Footer */}
-      <section className="py-20 mt-auto border-t border-[var(--border-subtle)] bg-[var(--bg-elevated)]/20">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to upgrade your production?</h2>
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-purple-600/10 to-transparent pointer-events-none" />
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <h2 className="text-4xl md:text-6xl font-bold mb-8 text-white">
+            Level up your production.
+          </h2>
+          <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Join the network of top creative professionals and production managers in Ghana.
+          </p>
           <div className="flex justify-center">
             <MainCTA isAuthenticated={isAuthenticated} isLoading={isLoading} />
           </div>
         </div>
       </section>
+
+      {/* Mini Footer */}
+      <footer className="py-12 border-t border-white/5 text-center text-sm text-slate-500">
+        <p>&copy; {new Date().getFullYear()} ICUNI Connect • Ghana's Creative Pulse.</p>
+      </footer>
     </div>
   );
 }
