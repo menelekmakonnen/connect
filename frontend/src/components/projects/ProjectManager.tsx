@@ -17,8 +17,11 @@ import {
     Lock,
     Sparkles,
     Target,
-    Zap
+    Zap,
+    UsersRound // Added for privacy toggle icon
 } from 'lucide-react';
+import { ProductionGantt, DEFAULT_PHASES } from '@/components/projects/ProductionGantt';
+
 import { api } from '@/lib/api';
 import { Project, ProjectSummary } from '@/lib/types';
 import { useRouter } from 'next/navigation';
@@ -28,7 +31,7 @@ const PROJECT_TYPES = [
     'Feature Film', 'Short Film', 'Commercial', 'Music Video', 'Documentary', 'Corporate', 'Event', 'Photoshoot', 'Other'
 ];
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'NGN'];
+const CURRENCIES = ['GHS', 'USD', 'EUR', 'GBP', 'NGN'];
 
 export function ProjectManager({ initialData }: { initialData?: Project | ProjectSummary }) {
     const { draft, updateDraft, updateScheduleItem, removeFromProject, clearDraft, setDraft } = useAppStore();
@@ -151,31 +154,65 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
 
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Access Control</label>
-                                <div className="flex bg-black/40 border border-white/10 rounded-2xl p-1.5 shadow-inner">
-                                    <button
-                                        onClick={() => updateDraft({ visibility: 'public' })}
+                                <div className="space-y-2">
+                                    <div className="flex bg-black/40 border border-white/10 rounded-2xl p-1.5 shadow-inner">
+                                        <button
+                                            onClick={() => updateDraft({ visibility: 'public' })}
+                                            className={cn(
+                                                "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-xs font-bold transition-all",
+                                                draft.visibility === 'public'
+                                                    ? "bg-purple-600 text-white shadow-lg"
+                                                    : "text-slate-500 hover:text-slate-300"
+                                            )}
+                                        >
+                                            <Globe size={16} />
+                                            Public
+                                        </button>
+                                        <button
+                                            onClick={() => updateDraft({ visibility: 'private' })}
+                                            className={cn(
+                                                "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-xs font-bold transition-all",
+                                                draft.visibility === 'private'
+                                                    ? "bg-purple-600 text-white shadow-lg"
+                                                    : "text-slate-500 hover:text-slate-300"
+                                            )}
+                                        >
+                                            <Lock size={16} />
+                                            Private
+                                        </button>
+                                    </div>
+
+                                    {/* Reveal Crew Toggle */}
+                                    <div
+                                        onClick={() => updateDraft({ revealTeam: !draft.revealTeam })}
                                         className={cn(
-                                            "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-xs font-bold transition-all",
-                                            draft.visibility === 'public'
-                                                ? "bg-purple-600 text-white shadow-lg"
-                                                : "text-slate-500 hover:text-slate-300"
+                                            "flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all",
+                                            draft.revealTeam
+                                                ? "bg-cyan-500/10 border-cyan-500/30"
+                                                : "bg-black/20 border-white/5 hover:border-white/10"
                                         )}
                                     >
-                                        <Globe size={16} />
-                                        Public
-                                    </button>
-                                    <button
-                                        onClick={() => updateDraft({ visibility: 'private' })}
-                                        className={cn(
-                                            "flex-1 flex items-center justify-center gap-2.5 py-3 rounded-xl text-xs font-bold transition-all",
-                                            draft.visibility === 'private'
-                                                ? "bg-purple-600 text-white shadow-lg"
-                                                : "text-slate-500 hover:text-slate-300"
-                                        )}
-                                    >
-                                        <Lock size={16} />
-                                        Private
-                                    </button>
+                                        <div className="flex items-center gap-3">
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                                                draft.revealTeam ? "bg-cyan-500/20 text-cyan-400" : "bg-white/5 text-slate-500"
+                                            )}>
+                                                <UsersRound size={16} />
+                                            </div>
+                                            <div>
+                                                <div className={cn("text-xs font-bold", draft.revealTeam ? "text-cyan-400" : "text-slate-400")}>Open Roster</div>
+                                            </div>
+                                        </div>
+                                        <div className={cn(
+                                            "w-10 h-6 rounded-full p-1 transition-all relative",
+                                            draft.revealTeam ? "bg-cyan-500" : "bg-slate-700"
+                                        )}>
+                                            <div className={cn(
+                                                "w-4 h-4 rounded-full bg-white shadow-sm transition-all absolute top-1",
+                                                draft.revealTeam ? "left-5" : "left-1"
+                                            )} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -210,7 +247,7 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                                 <input
                                     type="range"
                                     min="0"
-                                    max="100000"
+                                    max="1000000"
                                     step="1000"
                                     value={draft.budget}
                                     onChange={(e) => updateDraft({ budget: parseInt(e.target.value) })}
@@ -258,7 +295,7 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                             Production Pipeline
                         </h3>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8 border-b border-white/5 pb-8">
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target Start Date</label>
                                 <div className="relative">
@@ -284,45 +321,34 @@ export function ProjectManager({ initialData }: { initialData?: Project | Projec
                             </div>
                         </div>
 
-                        <div className="space-y-8 relative">
-                            {draft.schedule.map((item, idx) => (
-                                <div key={item.phase} className={cn("relative transition-all duration-500", !item.enabled && "opacity-30 grayscale blur-[1px]")}>
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-4">
-                                            <div
-                                                className={cn(
-                                                    "w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all",
-                                                    item.enabled ? "bg-purple-600 border-purple-400 shadow-[0_0_10px_var(--purple-600)]" : "border-slate-800 bg-black/40"
-                                                )}
-                                                onClick={() => updateScheduleItem(idx, { enabled: !item.enabled })}
-                                            >
-                                                {item.enabled && <Zap size={12} className="text-white fill-white" />}
-                                            </div>
-                                            <span className="font-bold text-white text-sm tracking-wide">{item.phase}</span>
-                                        </div>
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest bg-black/40 border border-white/5 px-2.5 py-1.5 rounded-lg">
-                                            Scale: {item.durationWeeks} weeks
-                                        </span>
-                                    </div>
-
-                                    <div className="relative h-2 bg-black/60 rounded-full overflow-hidden group">
-                                        <div
-                                            className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-600 to-cyan-500 rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
-                                            style={{ width: `${(item.durationWeeks / 20) * 100}%`, minWidth: '8px' }}
-                                        />
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="20"
-                                            step="1"
-                                            value={item.durationWeeks}
-                                            onChange={(e) => updateScheduleItem(idx, { durationWeeks: parseInt(e.target.value) })}
-                                            disabled={!item.enabled}
-                                            className="absolute inset-0 w-full opacity-0 cursor-ew-resize z-20"
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="w-full">
+                            <ProductionGantt
+                                totalDuration={120} // Default view range
+                                phases={draft.schedule.map((item, idx) => ({
+                                    id: item.phase.toLowerCase().replace(' ', '-'),
+                                    name: item.phase,
+                                    // Use stored startDay or a default staggered start if not set
+                                    startDay: item.startDay ?? (idx * 14),
+                                    duration: item.durationWeeks * 7,
+                                    color: idx === 0 ? '#a855f7' : idx === 1 ? '#3b82f6' : idx === 2 ? '#ef4444' : '#22c55e'
+                                }))}
+                                className="w-full"
+                                onPhasesChange={(updatedPhases) => {
+                                    // Map Gantt phase updates back to schedule items
+                                    const newSchedule = [...draft.schedule];
+                                    updatedPhases.forEach((p) => {
+                                        const idx = newSchedule.findIndex(s => s.phase === p.name);
+                                        if (idx !== -1) {
+                                            newSchedule[idx] = {
+                                                ...newSchedule[idx],
+                                                startDay: p.startDay,
+                                                durationWeeks: Math.round(p.duration / 7)
+                                            };
+                                        }
+                                    });
+                                    updateDraft({ schedule: newSchedule });
+                                }}
+                            />
                         </div>
                     </Card>
                 </div>

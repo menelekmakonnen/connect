@@ -4,6 +4,7 @@ import { Talent, TalentCard } from './types';
 
 export interface ScheduleItem {
     phase: 'Development' | 'Pre-Production' | 'Production' | 'Post-Production';
+    startDay?: number; // Added for Gantt chart support
     durationWeeks: number;
     enabled: boolean;
 }
