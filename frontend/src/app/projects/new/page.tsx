@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Select } from '@/components/ui';
 import type { ProjectType, BudgetTier } from '@/lib/types';
 import { api } from '@/lib/api';
-import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers, Plus, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers, Plus, Check, Users } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
