@@ -50,7 +50,7 @@ export default function NewProjectPage() {
         // budget_tier removed in favor of direct budget control
     });
 
-    const updateField = (field: string, value: string) => {
+    const updateField = (field: string, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
