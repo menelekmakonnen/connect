@@ -17,41 +17,41 @@ export function GoogleSignInButton({ onSuccess, onError }: GoogleSignInButtonPro
     const router = useRouter();
 
     return (
-        <div className="w-full flex justify-center">
+        <div className="w-full flex justify-center flex-col items-center">
             <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                     try {
                         if (credentialResponse.credential) {
                             setIsLoading(true);
+                            console.log('Google Auth Success. Verifying with ICUNI backend...');
                             const result = await api.auth.google(credentialResponse.credential) as { user: any; token: string };
-                            // Set auth state
+
                             setAuth(result.user, result.token);
-                            // Store token
                             localStorage.setItem('icuni_token', result.token);
 
                             if (onSuccess) onSuccess(result);
-
-                            // Default redirect if not handled by parent
-                            if (!onSuccess) {
-                                router.push('/dashboard');
-                            }
+                            if (!onSuccess) router.push('/dashboard');
                         }
                     } catch (error) {
-                        console.error('Login failed:', error);
+                        console.error('Authentication check failed:', error);
                         if (onError) onError(error as Error);
                     } finally {
                         setIsLoading(false);
                     }
                 }}
                 onError={() => {
-                    console.error('Login Failed');
+                    console.error('Google Sign-In failed to initialize or execute');
                     if (onError) onError(new Error('Google Sign-In Failed'));
                 }}
                 theme="filled_black"
                 shape="rectangular"
                 text="continue_with"
                 width="300"
+                use_fedcm_for_prompt={true}
             />
+            <div className="mt-4 text-[10px] text-[var(--text-muted)] uppercase tracking-[0.2em] font-black opacity-50">
+                Authorized Secure Access
+            </div>
         </div>
     );
 }

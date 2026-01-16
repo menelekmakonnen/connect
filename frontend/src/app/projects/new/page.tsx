@@ -43,9 +43,11 @@ export default function NewProjectPage() {
         location_city: '',
         location_notes: '',
         brief: '',
-        budget_tier: '' as BudgetTier | '',
+        currency: 'GHS',
+        budget: '50000',
         client_name: '',
         visibility: 'public',
+        // budget_tier removed in favor of direct budget control
     });
 
     const updateField = (field: string, value: string) => {
@@ -69,7 +71,7 @@ export default function NewProjectPage() {
     const canProceed = () => {
         if (step === 1) return formData.title && formData.type;
         if (step === 2) return formData.start_date && formData.location_city;
-        if (step === 3) return formData.budget_tier;
+        if (step === 3) return parseInt((formData as any).budget) > 0;
         return true;
     };
 
@@ -246,33 +248,66 @@ export default function NewProjectPage() {
 
                     <div className="space-y-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Budget Allocation</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                {budgetTiers.map((tier) => (
-                                    <button
-                                        key={tier.value}
-                                        onClick={() => updateField('budget_tier', tier.value as BudgetTier)}
-                                        className={cn(
-                                            "p-6 rounded-3xl border-2 text-left transition-all relative overflow-hidden group",
-                                            formData.budget_tier === tier.value
-                                                ? 'bg-purple-600/10 border-purple-500 ring-1 ring-purple-500/50 shadow-xl'
-                                                : 'bg-black/20 border-white/5 hover:border-white/10'
-                                        )}
-                                    >
-                                        <div className="relative z-10">
-                                            <span className={cn(
-                                                "text-[10px] font-black uppercase tracking-widest mb-1 block",
-                                                formData.budget_tier === tier.value ? "text-purple-400" : "text-slate-500"
-                                            )}>{tier.label}</span>
-                                            <span className="text-xs text-slate-600 font-medium leading-tight block">{tier.description}</span>
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Investment Deck</label>
+
+                            {/* Budget Controls */}
+                            <div className="bg-black/20 rounded-3xl p-6 border border-white/5 space-y-8">
+                                {/* Currency Selector */}
+                                <div className="space-y-3">
+                                    <label className="text-xs font-bold text-slate-400">Currency Base</label>
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        {['GHS', 'USD', 'EUR', 'GBP'].map(curr => (
+                                            <button
+                                                key={curr}
+                                                onClick={() => updateField('currency', curr)} // Requires updating state key
+                                                className={cn(
+                                                    "h-12 rounded-xl text-sm font-black transition-all border",
+                                                    (formData as any).currency === curr
+                                                        ? "bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-900/20"
+                                                        : "bg-[#151720] text-slate-500 border-white/5 hover:border-white/10 hover:text-slate-300"
+                                                )}
+                                            >
+                                                {curr}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Budget Slider */}
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-end">
+                                        <label className="text-xs font-bold text-slate-400">Total Allocation</label>
+                                        <div className="text-2xl font-black text-white tracking-tight">
+                                            {(formData as any).currency === 'GHS' ? '₵' : (formData as any).currency === 'USD' ? '$' : (formData as any).currency === 'EUR' ? '€' : '£'}
+                                            {parseInt((formData as any).budget || 0).toLocaleString()}
                                         </div>
-                                        {formData.budget_tier === tier.value && (
-                                            <div className="absolute top-2 right-2 w-6 h-6 rounded-lg bg-purple-500 flex items-center justify-center shadow-lg">
-                                                <Check size={14} className="text-white" />
-                                            </div>
-                                        )}
-                                    </button>
-                                ))}
+                                    </div>
+                                    <div className="relative h-6 flex items-center">
+                                        <div className="absolute w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-purple-600 to-cyan-500"
+                                                style={{ width: `${Math.min(100, (parseInt((formData as any).budget || 0) / 1000000) * 100)}%` }}
+                                            />
+                                        </div>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="1000000"
+                                            step="5000"
+                                            value={(formData as any).budget || 0}
+                                            onChange={(e) => updateField('budget', e.target.value)}
+                                            className="absolute w-full h-full opacity-0 cursor-pointer"
+                                        />
+                                        <div
+                                            className="absolute w-6 h-6 bg-white rounded-full shadow-lg border-2 border-purple-500 pointer-events-none transition-all"
+                                            style={{ left: `calc(${Math.min(100, (parseInt((formData as any).budget || 0) / 1000000) * 100)}% - 12px)` }}
+                                        />
+                                    </div>
+                                    <div className="flex justify-between text-[10px] font-bold text-slate-600 uppercase">
+                                        <span>0</span>
+                                        <span>1M+</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -288,54 +323,87 @@ export default function NewProjectPage() {
 
                         <div className="space-y-3">
                             <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Engine Visibility</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <button
-                                    onClick={() => updateField('visibility', 'public')}
-                                    className={cn(
-                                        "p-6 rounded-3xl border-2 text-left transition-all group",
-                                        formData.visibility === 'public'
-                                            ? 'bg-purple-600/10 border-purple-500'
-                                            : 'bg-black/20 border-white/5'
-                                    )}
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
-                                            formData.visibility === 'public' ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500"
-                                        )}>
-                                            <Globe size={18} />
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <button
+                                        onClick={() => updateField('visibility', 'public')}
+                                        className={cn(
+                                            "p-6 rounded-3xl border-2 text-left transition-all group",
+                                            formData.visibility === 'public'
+                                                ? 'bg-purple-600/10 border-purple-500'
+                                                : 'bg-black/20 border-white/5'
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
+                                                formData.visibility === 'public' ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500"
+                                            )}>
+                                                <Globe size={18} />
+                                            </div>
+                                            <span className={cn(
+                                                "text-xs font-black uppercase tracking-widest",
+                                                formData.visibility === 'public' ? "text-white" : "text-slate-500"
+                                            )}>Public Network</span>
                                         </div>
-                                        <span className={cn(
-                                            "text-xs font-black uppercase tracking-widest",
-                                            formData.visibility === 'public' ? "text-white" : "text-slate-500"
-                                        )}>Public Network</span>
-                                    </div>
-                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed">Broadcast to the marketplace for applicants.</p>
-                                </button>
+                                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed">Broadcast to the marketplace for applicants.</p>
+                                    </button>
 
-                                <button
-                                    onClick={() => updateField('visibility', 'private')}
-                                    className={cn(
-                                        "p-6 rounded-3xl border-2 text-left transition-all group",
-                                        formData.visibility === 'private'
-                                            ? 'bg-purple-600/10 border-purple-500'
-                                            : 'bg-black/20 border-white/5'
-                                    )}
-                                >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className={cn(
-                                            "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
-                                            formData.visibility === 'private' ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500"
-                                        )}>
-                                            <Lock size={18} />
+                                    <button
+                                        onClick={() => updateField('visibility', 'private')}
+                                        className={cn(
+                                            "p-6 rounded-3xl border-2 text-left transition-all group",
+                                            formData.visibility === 'private'
+                                                ? 'bg-purple-600/10 border-purple-500'
+                                                : 'bg-black/20 border-white/5'
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
+                                                formData.visibility === 'private' ? "bg-purple-600 text-white" : "bg-white/5 text-slate-500"
+                                            )}>
+                                                <Lock size={18} />
+                                            </div>
+                                            <span className={cn(
+                                                "text-xs font-black uppercase tracking-widest",
+                                                formData.visibility === 'private' ? "text-white" : "text-slate-500"
+                                            )}>Private Channel</span>
                                         </div>
-                                        <span className={cn(
-                                            "text-xs font-black uppercase tracking-widest",
-                                            formData.visibility === 'private' ? "text-white" : "text-slate-500"
-                                        )}>Private Channel</span>
+                                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed">Elite invites only. Hidden from the public roster.</p>
+                                    </button>
+                                </div>
+
+                                {/* Privacy Toggle: Reveal Crew */}
+                                <div className="bg-black/20 border border-white/5 rounded-3xl p-6 flex justify-between items-center group cursor-pointer hover:border-purple-500/30 transition-all"
+                                    onClick={() => updateField('revealTeam', (!(formData as any).revealTeam))}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={cn(
+                                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                                            (formData as any).revealTeam ? "bg-cyan-500/10 text-cyan-400" : "bg-white/5 text-slate-500"
+                                        )}>
+                                            <Users size={20} />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-white mb-1">Open Roster</h4>
+                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                {(formData as any).revealTeam
+                                                    ? 'Members can see who else is on the team.'
+                                                    : 'Members are hidden from each other (Stealth Mode).'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-relaxed">Elite invites only. Hidden from the public roster.</p>
-                                </button>
+                                    <div className={cn(
+                                        "w-14 h-8 rounded-full p-1 transition-all duration-300 relative",
+                                        (formData as any).revealTeam ? "bg-cyan-500" : "bg-slate-700"
+                                    )}>
+                                        <div className={cn(
+                                            "w-6 h-6 rounded-full bg-white shadow-lg transition-all duration-300 absolute top-1",
+                                            (formData as any).revealTeam ? "left-7" : "left-1"
+                                        )} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

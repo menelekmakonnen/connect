@@ -50,7 +50,7 @@ export function TalentQuickView() {
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-4xl text-[var(--text-muted)] font-bold">
-                                {talent.display_name.charAt(0)}
+                                {(talent.display_name || 'A').charAt(0)}
                             </div>
                         )}
 
@@ -58,8 +58,8 @@ export function TalentQuickView() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:hidden" />
 
                         <div className="absolute bottom-4 left-4 md:hidden">
-                            <h2 className="text-2xl font-bold text-white shadow-sm">{talent.display_name}</h2>
-                            <VerificationBadge level={talent.verification_level} />
+                            <h2 className="text-2xl font-bold text-white shadow-sm">{talent.display_name || 'Anonymous'}</h2>
+                            <VerificationBadge level={talent.verification_level || 'unverified'} />
                         </div>
                     </div>
 
@@ -68,17 +68,17 @@ export function TalentQuickView() {
                         <div className="hidden md:block mb-4">
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <h2 className="text-2xl font-bold text-white mb-1">{talent.display_name}</h2>
+                                    <h2 className="text-2xl font-bold text-white mb-1">{talent.display_name || 'Anonymous'}</h2>
                                     <div className="flex items-center gap-2">
-                                        <VerificationBadge level={talent.verification_level} showLabel />
+                                        <VerificationBadge level={talent.verification_level || 'unverified'} showLabel />
                                         <span className="text-[var(--text-muted)]">•</span>
                                         <div className="flex items-center gap-1 text-[var(--text-secondary)] text-sm">
                                             <MapPin size={14} />
-                                            {talent.city}
+                                            {talent.city || 'Location Hidden'}
                                         </div>
                                     </div>
                                 </div>
-                                <AvailabilityBadge status={talent.availability_status} showLabel />
+                                <AvailabilityBadge status={talent.availability_status || 'available'} showLabel />
                             </div>
                         </div>
 
@@ -93,7 +93,7 @@ export function TalentQuickView() {
                         <div className="mb-6 space-y-2">
                             <h4 className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">Roles</h4>
                             <div className="flex flex-wrap gap-2">
-                                {talent.roles?.map((role) => (
+                                {(talent.roles || []).map((role) => (
                                     <RoleBadge
                                         key={role.role_id}
                                         name={role.role_name}
@@ -119,7 +119,7 @@ export function TalentQuickView() {
 
                         {/* Actions */}
                         <div className="mt-auto grid grid-cols-2 gap-4">
-                            <Link href={`/talents/${talent.public_slug}`} onClick={closeQuickView} className="w-full">
+                            <Link href={`/talents/${talent.public_slug || talent.talent_id}`} onClick={closeQuickView} className="w-full">
                                 <Button variant="secondary" className="w-full h-12">
                                     View Full Profile
                                     <ExternalLink size={16} className="ml-2" />

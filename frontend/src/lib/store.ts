@@ -10,7 +10,7 @@ export interface ScheduleItem {
 
 export interface DraftProject {
     name: string;
-    currency: 'USD' | 'EUR' | 'GBP' | 'NGN';
+    currency: 'GHS' | 'USD' | 'EUR' | 'GBP';
     brief: string;
     type: string;
     subType: string;
@@ -20,7 +20,9 @@ export interface DraftProject {
     startDate: string | null; // ISO string
     schedule: ScheduleItem[];
     visibility: 'public' | 'private';
+    revealTeam: boolean; // New privacy setting
     selectedTalents: (Talent | TalentCard)[];
+    assignedRoles: Record<string, string>; // talent_id -> role_name/id
 }
 
 const DEFAULT_SCHEDULE: ScheduleItem[] = [
@@ -32,17 +34,19 @@ const DEFAULT_SCHEDULE: ScheduleItem[] = [
 
 const DEFAULT_DRAFT: DraftProject = {
     name: '',
-    currency: 'USD',
+    currency: 'GHS',
     brief: '',
     type: '',
     subType: '',
     genre: '',
-    budget: 50000,
+    budget: 100000,
     ambition: 5,
     startDate: null,
     schedule: DEFAULT_SCHEDULE,
     visibility: 'public',
+    revealTeam: true, // Default to transparent
     selectedTalents: [],
+    assignedRoles: {},
 };
 
 interface AppState {
@@ -58,7 +62,7 @@ interface AppState {
 
     // Project Draft State
     draft: DraftProject;
-    addToProject: (talent: Talent | TalentCard) => void;
+    addToProject: (talent: Talent | TalentCard, role?: string) => void;
     removeFromProject: (talentId: string) => void;
     updateDraft: (updates: Partial<DraftProject>) => void;
     updateScheduleItem: (index: number, updates: Partial<ScheduleItem>) => void;
@@ -81,15 +85,31 @@ export const useAppStore = create<AppState>()(
 
             // Project Draft State
             draft: DEFAULT_DRAFT,
-            addToProject: (talent) => set((state) => {
+            addToProject: (talent, role) => set((state) => {
                 // Prevent duplicates
                 if (state.draft.selectedTalents.some(t => t.talent_id === talent.talent_id)) {
+                    // Update role if changed
+                    if (role && state.draft.assignedRoles[talent.talent_id] !== role) {
+                        return {
+                            draft: {
+                                ...state.draft,
+                                assignedRoles: {
+                                    ...state.draft.assignedRoles,
+                                    [talent.talent_id]: role
+                                }
+                            }
+                        };
+                    }
                     return state;
                 }
                 return {
                     draft: {
                         ...state.draft,
-                        selectedTalents: [...state.draft.selectedTalents, talent]
+                        selectedTalents: [...state.draft.selectedTalents, talent],
+                        assignedRoles: role ? {
+                            ...state.draft.assignedRoles,
+                            [talent.talent_id]: role
+                        } : state.draft.assignedRoles
                     }
                 };
             }),

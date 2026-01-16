@@ -191,7 +191,7 @@ export interface TalentCard {
     display_name: string;
     headline?: string;
     city: City;
-    roles: Role[];
+    roles?: Role[]; // Optional - may be undefined in API response
     verification_level: VerificationLevel;
     availability_status: AvailabilityStatus;
     profile_photo_url?: string;

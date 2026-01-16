@@ -6,3 +6,4 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 export { Input, SearchInput, Select, Textarea } from './Input';
 export { StatCard } from './StatCard';
 export { ActivityItem } from './ActivityItem';
+export { Switch } from './Switch';

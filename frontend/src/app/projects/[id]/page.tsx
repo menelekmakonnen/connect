@@ -7,6 +7,7 @@ import { formatDate, formatCurrency, getProjectTypeLabel, cn } from '@/lib/utils
 import { api } from '@/lib/api';
 import { Project, RoleSlot } from '@/lib/types';
 import { AddToLineupModal } from '@/components/projects/AddToLineupModal';
+import { ProductionTimeline, DEFAULT_PHASES } from '@/components/projects/ProductionTimeline';
 import {
     ArrowLeft,
     Calendar,

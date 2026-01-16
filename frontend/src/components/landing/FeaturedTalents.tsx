@@ -4,43 +4,53 @@ import { TalentCard } from '@/components/talent/TalentCard';
 import { Button } from '@/components/ui';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import type { TalentCard as TalentCardType } from '@/lib/types';
 
 // Mock data for featured talents on landing page
-const FEATURED_TALENTS = [
+const FEATURED_TALENTS: TalentCardType[] = [
     {
         talent_id: '1',
+        public_slug: 'kofi-mensah',
         display_name: 'Kofi Mensah',
         profile_photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-        roles: [{ role_id: 'dp', role_name: 'Director of Photography', role_category: 'camera' }],
+        roles: [{ role_id: 'dp', role_name: 'Director of Photography', role_category: 'Camera', search_terms: '', active: true }],
         headline: 'Cinematographer with 10+ years experience',
         city: 'Accra',
-        verification_level: 3,
+        verification_level: 'pro_verified',
+        availability_status: 'available',
         featured: true,
+        tags_style: [],
         rate_range: { min: 800, max: 1500, currency: 'GHS' }
     },
     {
         talent_id: '2',
+        public_slug: 'ama-serwaa',
         display_name: 'Ama Serwaa',
         profile_photo_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
-        roles: [{ role_id: 'editor', role_name: 'Senior Video Editor', role_category: 'post' }],
+        roles: [{ role_id: 'editor', role_name: 'Senior Video Editor', role_category: 'Post', search_terms: '', active: true }],
         headline: 'Expert in Adobe Premiere and DaVinci Resolve',
         city: 'Kumasi',
-        verification_level: 2,
+        verification_level: 'work_verified',
+        availability_status: 'available',
         featured: true,
+        tags_style: [],
         rate_range: { min: 600, max: 1000, currency: 'GHS' }
     },
     {
         talent_id: '3',
+        public_slug: 'david-osei',
         display_name: 'David Osei',
         profile_photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
-        roles: [{ role_id: 'gaffer', role_name: 'Chief Gaffer', role_category: 'lighting' }],
+        roles: [{ role_id: 'gaffer', role_name: 'Chief Gaffer', role_category: 'Lighting/Grip', search_terms: '', active: true }],
         headline: 'Lighting specialist for high-end commercials',
         city: 'Accra',
-        verification_level: 3,
+        verification_level: 'pro_verified',
+        availability_status: 'available',
         featured: true,
+        tags_style: [],
         rate_range: { min: 700, max: 1200, currency: 'GHS' }
     }
-] as any[];
+];
 
 export function FeaturedTalents() {
     return (

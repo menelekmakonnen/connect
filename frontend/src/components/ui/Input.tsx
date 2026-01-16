@@ -51,7 +51,7 @@ export function SearchInput({ className, ...props }: SearchInputProps) {
 }
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-    options: { value: string; label: string }[];
+    options?: { value: string; label: string }[];
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
@@ -65,11 +65,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 )}
                 {...props}
             >
-                {options.map((opt) => (
+                {Array.isArray(options) && options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                         {opt.label}
                     </option>
                 ))}
+                {props.children}
             </select>
         );
     }

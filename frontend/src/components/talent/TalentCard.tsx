@@ -1,28 +1,40 @@
 'use client';
 
+import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
-import { Plus, Check, Star, MapPin, Zap } from 'lucide-react';
+import { Plus, Star, MapPin, Zap, X } from 'lucide-react';
 import { Card, RoleBadge, VerificationBadge } from '@/components/ui';
 import { formatRateRange, cn } from '@/lib/utils';
 import type { TalentCard as TalentCardType } from '@/lib/types';
 import Image from 'next/image';
+import { RoleSelectionModal } from '@/components/projects/RoleSelectionModal';
 
 interface TalentCardProps {
     talent: TalentCardType;
     onShortlist?: () => void;
 }
 
-export function TalentCard({ talent, onShortlist }: TalentCardProps) {
-    const { openQuickView, addToProject, draft } = useAppStore();
+export function TalentCard({ talent }: TalentCardProps) {
+    const { openQuickView, addToProject, removeFromProject, draft } = useAppStore();
+    const [showRoleModal, setShowRoleModal] = useState(false);
 
     const isInProject = draft.selectedTalents.some(t => t.talent_id === talent.talent_id);
 
-    const handleAddToProject = (e: React.MouseEvent) => {
+    const handleToggleProject = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!isInProject) {
-            addToProject(talent);
+        if (isInProject) {
+            // Remove from project
+            removeFromProject(talent.talent_id);
+        } else {
+            // Show role selection modal
+            setShowRoleModal(true);
         }
+    };
+
+    const handleRoleConfirm = (role?: string) => {
+        // Pass role to store when adding
+        addToProject(talent, role);
     };
 
     return (
@@ -41,13 +53,23 @@ export function TalentCard({ talent, onShortlist }: TalentCardProps) {
                             src={talent.profile_photo_url}
                             alt={talent.display_name}
                             fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             className="object-cover transition-transform duration-700 group-hover/card:scale-105"
+                            onError={(e) => {
+                                // Hide broken image and show fallback
+                                e.currentTarget.style.display = 'none';
+                                const fallback = e.currentTarget.nextElementSibling;
+                                if (fallback) fallback.classList.remove('hidden');
+                            }}
                         />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-4xl font-black text-slate-800 bg-[#0f1117] uppercase tracking-tighter">
-                            {talent.display_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </div>
-                    )}
+                    ) : null}
+                    {/* Fallback initials - always rendered but hidden if image loads */}
+                    <div className={cn(
+                        "w-full h-full flex items-center justify-center text-4xl font-black text-slate-300 bg-gradient-to-br from-purple-900/20 to-cyan-900/20 uppercase tracking-tighter backdrop-blur-sm border border-white/5",
+                        talent.profile_photo_url && "hidden"
+                    )}>
+                        {(talent.display_name || 'Anonymous').split(' ').map(n => n ? n[0] : '').join('').slice(0, 2)}
+                    </div>
 
                     {/* Elite Badges */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
@@ -57,21 +79,21 @@ export function TalentCard({ talent, onShortlist }: TalentCardProps) {
                                 Featured Talent
                             </div>
                         )}
-                        <VerificationBadge level={talent.verification_level} showLabel={true} className="rounded-xl px-3 py-1.5 text-[9px] font-black uppercase tracking-widest bg-[#0f1117]/80 backdrop-blur-md border border-white/10" />
+                        <VerificationBadge level={talent.verification_level || 'unverified'} showLabel={true} className="rounded-xl px-3 py-1.5 text-[9px] font-black uppercase tracking-widest bg-[#0f1117]/80 backdrop-blur-md border border-white/10" />
                     </div>
 
-                    {/* Add to Project Button - Floating UI approach */}
+                    {/* Add/Remove Project Button */}
                     <button
-                        onClick={handleAddToProject}
+                        onClick={handleToggleProject}
                         className={cn(
                             "absolute top-4 right-4 w-12 h-12 rounded-2xl flex items-center justify-center backdrop-blur-xl transition-all z-20 shadow-2xl border",
                             isInProject
-                                ? "bg-green-500 border-green-400 text-white shadow-green-500/20"
+                                ? "bg-red-500 border-red-400 text-white shadow-red-500/20 hover:bg-red-600"
                                 : "bg-black/40 border-white/10 text-white hover:bg-purple-600 hover:border-purple-400 hover:scale-110"
                         )}
-                        title={isInProject ? "Added to Project" : "Add to Project"}
+                        title={isInProject ? "Remove from Project" : "Add to Project"}
                     >
-                        {isInProject ? <Check size={20} className="animate-in zoom-in duration-300" /> : <Plus size={22} />}
+                        {isInProject ? <X size={20} className="animate-in zoom-in duration-300" /> : <Plus size={22} />}
                     </button>
 
                     {/* Cinema Overlay */}
@@ -83,11 +105,11 @@ export function TalentCard({ talent, onShortlist }: TalentCardProps) {
                     <div className="space-y-4">
                         <div className="space-y-1">
                             <h3 className="text-xl font-black text-white group-hover/card:text-purple-400 transition-colors tracking-tight uppercase truncate">
-                                {talent.display_name}
+                                {talent.display_name || 'Anonymous'}
                             </h3>
                             <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                                 <MapPin size={10} className="text-slate-700" />
-                                {talent.city || 'Accra, Ghana'}
+                                {talent.city || 'Location Hidden'}
                             </div>
                         </div>
 
@@ -100,7 +122,7 @@ export function TalentCard({ talent, onShortlist }: TalentCardProps) {
 
                         {/* Skill Matrices */}
                         <div className="flex flex-wrap gap-2">
-                            {talent.roles.slice(0, 2).map((role) => (
+                            {(talent.roles || []).slice(0, 2).map((role) => (
                                 <RoleBadge
                                     key={role.role_id}
                                     name={role.role_name}
@@ -108,9 +130,9 @@ export function TalentCard({ talent, onShortlist }: TalentCardProps) {
                                     className="px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest"
                                 />
                             ))}
-                            {talent.roles.length > 2 && (
+                            {(talent.roles || []).length > 2 && (
                                 <div className="px-2 py-1.5 rounded-lg bg-white/5 border border-white/5 text-[9px] font-black text-slate-600 uppercase tracking-widest">
-                                    +{talent.roles.length - 2} More
+                                    +{(talent.roles || []).length - 2} More
                                 </div>
                             )}
                         </div>
@@ -130,6 +152,15 @@ export function TalentCard({ talent, onShortlist }: TalentCardProps) {
                     </div>
                 </div>
             </Card>
+
+            {/* Role Selection Modal */}
+            <RoleSelectionModal
+                isOpen={showRoleModal}
+                onClose={() => setShowRoleModal(false)}
+                talent={talent}
+                onConfirm={handleRoleConfirm}
+                projectRoles={[]} // TODO: Pass actual project roles when available
+            />
         </div>
     );
 }

@@ -75,6 +75,7 @@ export function Sidebar() {
                             src="/favicon-active.png"
                             alt="Logo"
                             fill
+                            sizes="32px"
                             className="rounded-lg object-cover"
                         />
                     </div>
@@ -225,17 +226,31 @@ export function Sidebar() {
                     /* Guest View */
                     <div className={cn("flex flex-col gap-2", isCollapsed ? "items-center" : "")}>
                         {!isCollapsed ? (
-                            <Link href="/login" className="w-full">
-                                <button className="w-full py-2 px-4 bg-[var(--accent-primary)] text-black rounded-lg text-sm font-medium hover:bg-[var(--accent-secondary)] transition-colors">
-                                    Sign In
-                                </button>
-                            </Link>
+                            <>
+                                <Link href="/login" className="w-full">
+                                    <button className="w-full py-2 px-4 bg-[var(--accent-primary)] text-black rounded-lg text-sm font-medium hover:bg-[var(--accent-secondary)] transition-colors">
+                                        Sign In
+                                    </button>
+                                </Link>
+                                <Link href="/register" className="w-full">
+                                    <button className="w-full py-2 px-4 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg text-sm font-medium hover:bg-purple-500/20 transition-colors">
+                                        Join Network
+                                    </button>
+                                </Link>
+                            </>
                         ) : (
-                            <Link href="/login" title="Sign In">
-                                <button className="w-8 h-8 flex items-center justify-center bg-[var(--accent-primary)] text-black rounded-lg hover:bg-[var(--accent-secondary)] transition-colors">
-                                    <LogOut size={16} className="rotate-180" />
-                                </button>
-                            </Link>
+                            <>
+                                <Link href="/login" title="Sign In">
+                                    <button className="w-8 h-8 flex items-center justify-center bg-[var(--accent-primary)] text-black rounded-lg hover:bg-[var(--accent-secondary)] transition-colors">
+                                        <LogOut size={16} className="rotate-180" />
+                                    </button>
+                                </Link>
+                                <Link href="/register" title="Join Network">
+                                    <button className="w-8 h-8 flex items-center justify-center bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg hover:bg-purple-500/20 transition-colors mt-2">
+                                        <Sparkles size={16} />
+                                    </button>
+                                </Link>
+                            </>
                         )}
                     </div>
                 )}

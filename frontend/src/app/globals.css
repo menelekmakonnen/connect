@@ -535,6 +535,7 @@ h4 {
 .app-layout {
   display: flex;
   min-height: 100vh;
+  gap: 0;
 }
 
 .app-sidebar {
@@ -553,4 +554,6 @@ h4 {
 .app-main {
   flex: 1;
   overflow-x: hidden;
+  padding: 1.5rem;
+  background: var(--bg-primary);
 }

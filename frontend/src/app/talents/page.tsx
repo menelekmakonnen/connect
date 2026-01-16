@@ -37,7 +37,9 @@ export default function RosterPage() {
                     availability: selectedAvailability,
                     verified_only: verifiedOnly
                 });
-                setTalents(result.talents || []);
+                console.log('[Roster] API Result:', result);
+                const talentData = Array.isArray(result.talents) ? result.talents : [];
+                setTalents(talentData);
             } catch (err) {
                 console.error('Failed to fetch talents:', err);
                 setError('Failed to load roster. Please try again.');
@@ -232,10 +234,12 @@ export default function RosterPage() {
                             Reconnect Now
                         </Button>
                     </div>
-                ) : talents.length > 0 ? (
+                ) : (Array.isArray(talents) && talents.length > 0) ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {talents.map((talent) => (
-                            <TalentCard key={talent.talent_id} talent={{ ...talent, roles: talent.roles || [] }} />
+                            talent && talent.talent_id && (
+                                <TalentCard key={talent.talent_id} talent={{ ...talent, roles: talent.roles || [] }} />
+                            )
                         ))}
                     </div>
                 ) : (
@@ -245,7 +249,7 @@ export default function RosterPage() {
                         </div>
                         <h3 className="text-2xl font-bold text-white mb-2">No talent found</h3>
                         <p className="text-slate-500 max-w-sm mx-auto mb-8">
-                            We couldn't find any professionals matching those criteria. Try expanding your search or clearing filters.
+                            We couldn&apos;t find any professionals matching those criteria. Try expanding your search or clearing filters.
                         </p>
                         <Button
                             variant="secondary"

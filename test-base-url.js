@@ -1,5 +1,6 @@
 // Test the BASE /exec URL without any path segments
-const baseUrl = 'https://script.google.com/macros/s/AKfycbyfTsG6zs5KaxdO5FL0_Yr_lSadFOPi6CYedwfLkNOzReyHvH_4TG37Ou0dB9YnRbl5/exec';
+// Test the BASE /exec URL with a valid API path
+const baseUrl = 'https://script.google.com/macros/s/AKfycbyfTsG6zs5KaxdO5FL0_Yr_lSadFOPi6CYedwfLkNOzReyHvH_4TG37Ou0dB9YnRbl5/exec?path=/api/talents';
 
 async function testBase() {
     console.log('Testing BASE URL (no /api path):', baseUrl);

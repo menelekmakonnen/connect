@@ -127,6 +127,17 @@ export async function apiCall<T>(endpoint: string, options: RequestInit = {}): P
             } catch (e) {
                 // Could not parse error JSON, stick to status text
             }
+
+            // Handle Auth Errors (401/403) or generic "Unauthorized" text
+            if (response.status === 401 || response.status === 403 || errorMessage.toLowerCase().includes('invalid or expired session')) {
+                console.warn('[API] Auth expired or invalid. Redirecting to login.');
+                if (typeof window !== 'undefined') {
+                    localStorage.removeItem('icuni_token');
+                    localStorage.removeItem('icuni-auth'); // Clear Zustand persistence if any
+                    window.location.href = '/login?expired=true';
+                }
+            }
+
             throw new Error(errorMessage);
         }
 
