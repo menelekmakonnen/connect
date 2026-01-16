@@ -5,3 +5,12 @@ This file was created to trigger the initial Vercel deployment.
 **Deployment Date**: 2026-01-01
 **Platform**: Vercel
 **Repository**: <https://github.com/menelekmakonnen/connect>
+
+## Deployment History
+
+### 2026-01-16: Roster Fixes & UI Enhancements
+
+- **Fix**: Resolved persistent Roster page `TypeError` crash.
+- **Feature**: Interactive Production Timeline (Gantt).
+- **Feature**: Role Selection Modal.
+- **Enhancement**: UI robustness for Input/Select components.
