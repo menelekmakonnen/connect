@@ -160,6 +160,7 @@ export function ProductionTimeline({
                         value={duration}
                         onChange={handleDurationChange}
                         className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500 hover:accent-purple-400 transition-all"
+                        aria-label="Project Duration"
                     />
                     <div className="flex justify-between text-[10px] font-bold text-slate-600 mt-2">
                         <span>1 Week</span>

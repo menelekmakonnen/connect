@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Card, Input, Select } from '@/components/ui';
-import type { ProjectType, BudgetTier } from '@/lib/types';
+import type { ProjectType } from '@/lib/types';
 import { api } from '@/lib/api';
-import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers, Plus, Check, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, MapPin, DollarSign, Globe, Lock, Loader2, Target, Sparkles, Zap, Layers, Plus, Users } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -16,12 +16,6 @@ const projectTypes = [
     { value: 'doc', label: 'Documentary', icon: <Globe size={18} /> },
     { value: 'event', label: 'Event', icon: <Sparkles size={18} /> },
     { value: 'other', label: 'Other', icon: <Plus size={18} /> },
-];
-
-const budgetTiers = [
-    { value: 'low', label: 'Budget-Friendly', description: 'Entry-level rates, newer talent' },
-    { value: 'mid', label: 'Mid-Range', description: 'Experienced talent, standard rates' },
-    { value: 'premium', label: 'Premium', description: 'Top-tier talent, industry rates' },
 ];
 
 const cityOptions = [
@@ -253,59 +247,57 @@ export default function NewProjectPage() {
                             {/* Budget Controls */}
                             <div className="bg-black/20 rounded-3xl p-6 border border-white/5 space-y-8">
                                 {/* Currency Selector */}
-                                <div className="space-y-3">
-                                    <label className="text-xs font-bold text-slate-400">Currency Base</label>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                        {['GHS', 'USD', 'EUR', 'GBP'].map(curr => (
-                                            <button
-                                                key={curr}
-                                                onClick={() => updateField('currency', curr)} // Requires updating state key
-                                                className={cn(
-                                                    "h-12 rounded-xl text-sm font-black transition-all border",
-                                                    (formData as any).currency === curr
-                                                        ? "bg-purple-600 text-white border-purple-500 shadow-lg shadow-purple-900/20"
-                                                        : "bg-[#151720] text-slate-500 border-white/5 hover:border-white/10 hover:text-slate-300"
-                                                )}
-                                            >
-                                                {curr}
-                                            </button>
-                                        ))}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <label className="text-xs font-bold text-slate-400">Currency Base</label>
+                                        <Select
+                                            options={[
+                                                { value: 'GHS', label: '₵ GHS - Ghana Cedis' },
+                                                { value: 'USD', label: '$ USD - US Dollars' },
+                                                { value: 'EUR', label: '€ EUR - Euro' },
+                                                { value: 'GBP', label: '£ GBP - British Pound' }
+                                            ]}
+                                            value={(formData as any).currency}
+                                            onChange={(e) => updateField('currency', e.target.value)}
+                                            className="h-12 bg-[#151720] border-white/10 font-bold"
+                                        />
                                     </div>
-                                </div>
 
-                                {/* Budget Slider */}
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-end">
-                                        <label className="text-xs font-bold text-slate-400">Total Allocation</label>
-                                        <div className="text-2xl font-black text-white tracking-tight">
-                                            {(formData as any).currency === 'GHS' ? '₵' : (formData as any).currency === 'USD' ? '$' : (formData as any).currency === 'EUR' ? '€' : '£'}
-                                            {parseInt((formData as any).budget || 0).toLocaleString()}
+                                    {/* Budget Slider */}
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-end">
+                                            <label className="text-xs font-bold text-slate-400">Total Allocation</label>
+                                            <div className="text-2xl font-black text-white tracking-tight">
+                                                {(formData as any).currency === 'GHS' ? '₵' : (formData as any).currency === 'USD' ? '$' : (formData as any).currency === 'EUR' ? '€' : '£'}
+                                                {parseInt((formData as any).budget || 0).toLocaleString()}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="relative h-6 flex items-center">
-                                        <div className="absolute w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="relative h-6 flex items-center">
+                                            <div className="absolute w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-purple-600 to-cyan-500"
+                                                    style={{ width: `${Math.min(100, (parseInt((formData as any).budget || 0) / 1000000) * 100)}%` }}
+                                                />
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="1000000"
+                                                step="5000"
+                                                value={(formData as any).budget || 0}
+                                                onChange={(e) => updateField('budget', e.target.value)}
+                                                className="absolute w-full h-full opacity-0 cursor-pointer"
+                                                aria-label="Budget Allocation"
+                                            />
                                             <div
-                                                className="h-full bg-gradient-to-r from-purple-600 to-cyan-500"
-                                                style={{ width: `${Math.min(100, (parseInt((formData as any).budget || 0) / 1000000) * 100)}%` }}
+                                                className="absolute w-6 h-6 bg-white rounded-full shadow-lg border-2 border-purple-500 pointer-events-none transition-all"
+                                                style={{ left: `calc(${Math.min(100, (parseInt((formData as any).budget || 0) / 1000000) * 100)}% - 12px)` }}
                                             />
                                         </div>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="1000000"
-                                            step="5000"
-                                            value={(formData as any).budget || 0}
-                                            onChange={(e) => updateField('budget', e.target.value)}
-                                            className="absolute w-full h-full opacity-0 cursor-pointer"
-                                        />
-                                        <div
-                                            className="absolute w-6 h-6 bg-white rounded-full shadow-lg border-2 border-purple-500 pointer-events-none transition-all"
-                                            style={{ left: `calc(${Math.min(100, (parseInt((formData as any).budget || 0) / 1000000) * 100)}% - 12px)` }}
-                                        />
-                                    </div>
-                                    <div className="flex justify-between text-[10px] font-bold text-slate-600 uppercase">
-                                        <span>0</span>
-                                        <span>1M+</span>
+                                        <div className="flex justify-between text-[10px] font-bold text-slate-600 uppercase">
+                                            <span>0</span>
+                                            <span>1M+</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
