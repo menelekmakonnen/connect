@@ -93,7 +93,7 @@ export default function TalentBubble({ talent, onClose, onAddToProject }) {
             <h6 style={{ marginBottom: 'var(--space-md)' }}>Roles</h6>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 'var(--space-md)' }}>
               {(talent.roles || []).map((r, i) => (
-                <span key={i} className="chip chip-role">{r}</span>
+                <span key={i} className="chip chip-role">{typeof r === 'string' ? r : (r.name || r.ROLE_NAME || 'Role')}</span>
               ))}
             </div>
 
@@ -102,7 +102,7 @@ export default function TalentBubble({ talent, onClose, onAddToProject }) {
                 <h6 style={{ marginBottom: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>Skills</h6>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {talent.skills.map((s, i) => (
-                    <span key={i} className="chip chip-genre">{s}</span>
+                    <span key={i} className="chip chip-genre">{typeof s === 'string' ? s : (s.name || s.SKILL_NAME || 'Skill')}</span>
                   ))}
                 </div>
               </>
