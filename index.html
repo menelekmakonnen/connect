@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ICUNI Connect — Ghana's Premier Creative Talent Directory. Discover, assemble, and manage world-class talent for film, music, fashion, and media production." />
+    <meta name="theme-color" content="#0a0e1a" />
+    <title>ICUNI Connect — Talent Directory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <script>
+      // Prevent theme flash — apply before React loads
+      (function(){
+        var t = localStorage.getItem('icuni_connect_theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        else document.documentElement.setAttribute('data-theme', 'dark');
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

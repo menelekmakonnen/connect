@@ -1,0 +1,184 @@
+/* ═══════════════════════════════════════════════════════
+   ICUNI CONNECT — Design Tokens
+   Premium dark-first, film-native design system.
+   Warm copper-gold accent + deep charcoal backgrounds.
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap');
+
+/* ─── DARK MODE (Default) ──────────────────────────────── */
+:root {
+  /* Background hierarchy — deep warm charcoal */
+  --bg-primary:       #0c0d10;
+  --bg-secondary:     #131418;
+  --bg-tertiary:      #1a1b21;
+  --bg-card:          rgba(19, 20, 24, 0.88);
+  --bg-card-hover:    rgba(26, 27, 33, 0.95);
+  --bg-card-solid:    #16171c;
+  --bg-glass:         rgba(255, 255, 255, 0.04);
+  --bg-glass-hover:   rgba(255, 255, 255, 0.08);
+  --bg-input:         rgba(12, 13, 16, 0.9);
+  --bg-sidebar:       #09090b;
+  --bg-overlay:       rgba(0, 0, 0, 0.65);
+
+  /* Accent — Warm Copper Gold */
+  --accent:           #E8A838;
+  --accent-light:     #F0BE5A;
+  --accent-dark:      #D4922E;
+  --accent-dim:       rgba(232, 168, 56, 0.12);
+  --accent-glow:      rgba(232, 168, 56, 0.25);
+  --accent-text:      #F0BE5A;
+
+  /* Secondary — matches accent for cohesion */
+  --gold:             #E8A838;
+  --gold-light:       #F0BE5A;
+  --gold-dim:         rgba(232, 168, 56, 0.12);
+  --gold-glow:        rgba(232, 168, 56, 0.2);
+
+  /* Tertiary accents */
+  --blue:             #5B8DEF;
+  --blue-dim:         rgba(91, 141, 239, 0.12);
+  --purple:           #9D7AEA;
+  --purple-dim:       rgba(157, 122, 234, 0.12);
+  --pink:             #E85D9A;
+  --pink-dim:         rgba(232, 93, 154, 0.12);
+
+  /* Status — Verification Tiers */
+  --tier-unverified:  #6B7280;
+  --tier-profile:     #5B8DEF;
+  --tier-work:        #9D7AEA;
+  --tier-pro:         #E8A838;
+
+  /* Status — Availability */
+  --available:        #34D399;
+  --available-bg:     rgba(52, 211, 153, 0.1);
+  --limited:          #FBBF24;
+  --limited-bg:       rgba(251, 191, 36, 0.1);
+  --unavailable:      #F87171;
+  --unavailable-bg:   rgba(248, 113, 113, 0.1);
+
+  /* Status — General */
+  --success:          #34D399;
+  --success-dim:      rgba(52, 211, 153, 0.12);
+  --warning:          #FBBF24;
+  --warning-dim:      rgba(251, 191, 36, 0.12);
+  --danger:           #F87171;
+  --danger-dim:       rgba(248, 113, 113, 0.12);
+  --info:             #67E8F9;
+  --info-dim:         rgba(103, 232, 249, 0.12);
+
+  /* Text hierarchy — warm off-whites */
+  --text-primary:     #F0EDE8;
+  --text-secondary:   #A09B93;
+  --text-tertiary:    #706B63;
+  --text-muted:       #504C46;
+  --text-inverse:     #0c0d10;
+
+  /* Borders */
+  --border:           rgba(255, 255, 255, 0.07);
+  --border-hover:     rgba(255, 255, 255, 0.14);
+  --border-accent:    rgba(232, 168, 56, 0.3);
+  --border-light:     rgba(255, 255, 255, 0.1);
+
+  /* Shadows */
+  --shadow-sm:        0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:        0 4px 12px rgba(0,0,0,0.5);
+  --shadow-lg:        0 8px 30px rgba(0,0,0,0.6);
+  --shadow-xl:        0 16px 48px rgba(0,0,0,0.7);
+  --shadow-glow:      0 0 20px rgba(232, 168, 56, 0.12);
+  --shadow-card:      0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  --shadow-dropdown:  0 12px 40px rgba(0,0,0,0.6), 0 0 1px rgba(255,255,255,0.08);
+
+  /* Typography */
+  --font:             'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:        'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+
+  /* Spacing scale */
+  --space-2xs:        2px;
+  --space-xs:         4px;
+  --space-sm:         8px;
+  --space-md:         16px;
+  --space-lg:         24px;
+  --space-xl:         32px;
+  --space-2xl:        48px;
+  --space-3xl:        64px;
+
+  /* Radius */
+  --radius-xs:        4px;
+  --radius-sm:        6px;
+  --radius-md:        10px;
+  --radius-lg:        16px;
+  --radius-xl:        24px;
+  --radius-full:      9999px;
+
+  /* Layout */
+  --sidebar-width:    260px;
+  --sidebar-collapsed: 72px;
+  --topbar-height:    64px;
+  --drawer-width:     420px;
+  --mobile-nav-height: 64px;
+
+  /* Transitions */
+  --ease-out:         cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:      cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce:      cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --duration-fast:    150ms;
+  --duration-base:    250ms;
+  --duration-slow:    400ms;
+  --duration-slower:  600ms;
+
+  /* Z-index layers */
+  --z-base:           1;
+  --z-dropdown:       10;
+  --z-sticky:         20;
+  --z-drawer:         30;
+  --z-modal:          40;
+  --z-toast:          50;
+  --z-tooltip:        60;
+  --z-ambient:        0;
+
+  /* Login */
+  --login-gradient:   linear-gradient(135deg, #09090b 0%, #131418 50%, #0f1014 100%);
+}
+
+/* ─── LIGHT MODE ──────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-primary:       #f6f4f0;
+  --bg-secondary:     #ffffff;
+  --bg-tertiary:      #ece9e3;
+  --bg-card:          rgba(255, 255, 255, 0.92);
+  --bg-card-hover:    rgba(255, 255, 255, 1);
+  --bg-card-solid:    #ffffff;
+  --bg-glass:         rgba(0, 0, 0, 0.02);
+  --bg-glass-hover:   rgba(0, 0, 0, 0.05);
+  --bg-input:         #ffffff;
+  --bg-sidebar:       #ffffff;
+  --bg-overlay:       rgba(0, 0, 0, 0.3);
+
+  --accent:           #D4922E;
+  --accent-light:     #E8A838;
+  --accent-dim:       rgba(212, 146, 46, 0.1);
+  --accent-glow:      rgba(212, 146, 46, 0.15);
+  --accent-text:      #B37A20;
+
+  --text-primary:     #1c1a17;
+  --text-secondary:   #5a5650;
+  --text-tertiary:    #8a8580;
+  --text-muted:       #b8b3ac;
+  --text-inverse:     #f0ede8;
+
+  --border:           rgba(0, 0, 0, 0.08);
+  --border-hover:     rgba(0, 0, 0, 0.15);
+  --border-accent:    rgba(212, 146, 46, 0.3);
+  --border-light:     rgba(0, 0, 0, 0.06);
+
+  --shadow-sm:        0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md:        0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg:        0 8px 30px rgba(0,0,0,0.1);
+  --shadow-xl:        0 16px 48px rgba(0,0,0,0.12);
+  --shadow-glow:      0 0 20px rgba(212, 146, 46, 0.08);
+  --shadow-card:      0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+  --shadow-dropdown:  0 12px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.08);
+
+  --login-gradient:   linear-gradient(135deg, #f6f4f0 0%, #fff 50%, #f0ece6 100%);
+}
